@@ -1,4 +1,4 @@
-
+import os
 
 class File:
     def __init__(self, id,name,size,creationDate,modifyDate,extension,content):
@@ -49,26 +49,35 @@ class Command:
 
 
 class User:
+    users = dict()
     def __init__(self,id,name,password,role):
         self.id = id
         self.name = name
         self.password = password
         self.role = role
         self.currentFolder = "/"
-        self.currentUnit = Unit.units["C"]
+        self.currentUnit = None
+        User.users[self.name] = self
         
         
 
-def help(arg):
+def help(arg,status):
     for command in Command.commands:
         print(command)
         
-def man(arg):
-    print(arg  + " " + Command.commands[arg].description)
+def man(arg,status):
+
+    if len(arg) == 1:
+        if arg[0] in Command.commands:
+            print(arg[0]  + " " + Command.commands[arg[0]].description)
+        else:
+            print("Ninguna entrada del manual para " + arg[0])
+    else:
+        print("argumentos incorrectos")
 
 
 
-def ls (arg):
+def ls (arg,status):
     unidad = arg[0]
     ubication = arg[1]
     if unidad in Unit.units:
@@ -103,36 +112,86 @@ def cd (arg,state):
                         break
     else:
         print("unidad no encontrada")
+        
+def mkdir(arg,state):
+    if state.currentFolder == None:
+        state.currentUnit.folders.append(Folder(1,arg[0],None,None))
+    else:
+        state.currentFolder.folders.append(Folder(1,arg[0],None,None))
     
+def login(arg,state):
+    user = input("user: ")
+    password = input("password: ")
+    if user in User.users:
+        if User.users[user].password == password:
+            state.currentUser = User.users[user]
+            print("Bienvenido " + user)
+        else:
+            print("password incorrecto")
+    
+def exits(arg,state):
+    exit(0)
+    
+
+def ps(arg,state):
+    os.system("ps")
+    
+    
+
+    
+class Shell:
+    def __init__(self):
+        self.currentUser = None
+        Command(1,"help","muestra los comandos disponibles","all",help)
+        Command(2,"man","muestra la descripcion del comando","all",man)
+        Command(3,"login","inicia sesion en el sistema","all",login)
+        Command(4,"exit","cierra la sesion actual","all",exits)
+        Command(5,"ps","muestra los procesos en ejecucion","all",ps)
+        User(1,"admin","admin","admin")
+        
+        
+    
+    def loop(self):
+        
+        print("Bienvenido a la MFShell")
+        print("para ver los comandos disponibles escriba help")
+        
+        
+        
+        promp = ''
+        while True:
+            name = ""
+            if self.currentUser != None:
+                name = self.currentUser.name
+            else:
+                name = "guest"
+            promp = ''
+            try:
+                promp =  input(name + "@" + name +":~ /$ ")
+            except KeyboardInterrupt:
+                exit(0)
+            promp = promp.split(" ")
+            
+            if self.currentUser == None and promp[0] != "login" and promp[0] != "exit": 
+                print("no hay usuario logueado, por favor utilizar comando login")
+                continue
+            
+            
+            
+            if promp[0] in Command.commands:
+                if len(promp) > 1:
+                    Command.commands[promp[0]].execute(promp[1:],self)
+                else:
+                    Command.commands[promp[0]].execute(None,self)
+                
+                
+            else:
+                print("command not found")
 
 
 def main():
-    
-    Command(2,"help","list commands","user",help)
-    Command(3,"man","manual","user",man)
-    Command(4,"ls","list files a directorys","user",ls)
-    Command(5,"cd","change directory","user",cd)
-    
-    Unit(1,"C",100,50,"HDD")
-    Unit(2,"D",100,50,"SSF")
-    default = User(1,"user","1234","user")
-    
-    promp = ''
-    
-    while promp != "exit":
-        promp =  input("user@user:~ /" + str(default.currentUnit.name) + "/" + str(default.currentFolder) + "$ ")
-        promp = promp.split(" ")
-        
-        if promp[0] in Command.commands:
-            if len(promp) > 1:
-                Command.commands[promp[0]].execute(promp[1:],default)
-            else:
-                Command.commands[promp[0]].execute(None)
-            
-            
-        else:
-            print("command not found")
-          
+    shell = Shell()
+    shell.loop()   
           
 
     

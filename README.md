@@ -1,6 +1,6 @@
 # MFS (Memory File System)
 
-MFS is a lightweight file system implemented in memory. It provides a simple and efficient way to manage files in memory without the need for write or read  a physical disk.
+MFS is a lightweight file system implemented in memory. It provides a simple and efficient way to manage files in memory without the need to write or read  a physical disk.
 
 ## Features
 

@@ -53,11 +53,9 @@ class Shell:
             "dir",
             "any",
             "dir - lista los archivos y carpetas en la ubicación dada",
-            """dir [unidad] [ubicación]
+            """dir [unidad:ubicación]
 
                 Lista los archivos y carpetas en la unidad y ubicación dadas.
-                Al no usar argumentos, lista las unidades disponibles.
-                Al especificar [unidad], pero no [ubicación], lista las carpetas y archivos en la raíz de la unidad.
 
                 También es posible especificar los siguientes argumentos:
 
@@ -78,7 +76,13 @@ class Shell:
             dir,
         )
         
-        Command("shu","any","shu - lista las unidades","shu [unidad]",shu)
+        Command("shu",
+                "any",
+                "shu - lista las unidades",
+                """shu [unidad]
+                Lista las unidades disponibles en el sistema""",
+                shu)
+
         # User for testing purposes
         User("admin", "admin", "admin")
 
@@ -143,14 +147,13 @@ class Shell:
                         self.currentUser = login()
             else:
                 print("command not found")
-                
-                
+                            
     
 # load the data from the json file and create the objects in memory
+# Henry: No entiendo nada de esto, pero yo confío
     def load(self):
-        file = open("data.json","r")
-        data = json.load(file)
-        file.close()
+        with open("data.json","r") as file:
+            data = json.load(file)
         for unit in data["Units"]:
             unidad = Unit(unit["name"],unit["totalSize"],unit["freeSize"],unit["type"])
             for folder in unit["folders"]:

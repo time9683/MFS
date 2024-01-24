@@ -25,7 +25,14 @@ class Folder:
         self.modifyDate = modifyDate  # timestamp
         self.files = []
         self.folders = []
-        self.size = 0  # bytes
+
+        ### TODO calling size raises TypeError
+        self.size = 0 # bytes
+
+    def size_calc(self):
+        ### TODO
+        # Add up size of contained files in current folder and contained folders
+        return 0
 
 
 class Unit:
@@ -88,7 +95,6 @@ class User:
             User.users[self.name] = self
 
 def help():
-    # Command process
     for name in Command.commands:
         print(Command.commands[name])
     
@@ -106,7 +112,6 @@ def man(arg:list):
         print("argumentos incorrectos")
 
 def login() -> User:
-    # Command process
     name = input("user: ")
     password = input("password: ")
     if name in User.users:
@@ -125,46 +130,86 @@ def shu():
         print(unit)
     
 
-def dir(arg):
-    if  arg == None:
-        print("el comando ls necesita al menos un argumento: ls [unidad]:[directorio]  ")
-        return
+def dir(arg:list) -> None:
     unidad = path = ""
+    folders = list()
+    files = list()
+
+    # Get path from first argument
     try:
         unidad,path = arg[0].split(":")
     except ValueError:
         print("argumentos invalidos")
         return
     
-    
+    # Listing files and folders
     if unidad in Unit.units:
         if path == "/":
             for folder in Unit.units[unidad].folders:
-                print(OKBLUE + folder.name + "/")
+                folders.append(folder)
         else:
             names = path.split("/")
             actual_folders = Unit.units[unidad].folders
             actual_folder = None
+
+            ### TODO WARNING: Lists path even when repeated Folder1/FOlder1/Folder1/
             for i in range(len(names)):
                 for j in range(len(actual_folders)):
                     if actual_folders[j].name == names[i]:
                         actual_folder = actual_folders[j]
                         actual_folders = actual_folder.folders
                         break
+
             if actual_folder == None:
                 print("directorio no encontrado")
                 return
             
-            
             for folder in actual_folders:
-                print(OKBLUE + folder.name + "/")
+                folders.append(folder)
                 
             if actual_folder != None and actual_folder.files != None:
                 for file in actual_folder.files:
-                    print(DEFAULT+file.name + "." + file.extension)
-    
+                    files.append(file)                
     else:
          print("unidad no encontrada")
-    # delete color of print
-    print(DEFAULT,end="")
-    
+
+    # Addressing listing criteria
+    # Standard listing
+    if len(arg) == 1:
+        # print folders
+        for folder in folders:
+            print(OKBLUE + folder.name + "/")
+        # print files
+        for file in files:
+            print(DEFAULT+file.name + "." + file.extension)
+        # delete print color
+        print(DEFAULT,end="")
+
+    # Argument listing
+    else:
+        # Size sorting ascendently or descendently
+        if len(arg) == 2 and arg[-1] in ["asc", "desc"]:
+            # Sorting
+            print(arg[-1])
+            size_sort(arg[-1])
+            size_sort(arg[-1])
+
+            # Printing results
+            # TODO print folders need to add folder.size
+            for folder in folders:
+                print(OKBLUE + folder.name + "/: ")
+            # print files
+            for file in files:
+                print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+            # delete print color
+            print(DEFAULT,end="")
+        else:
+            print("invalid arguments")
+
+
+def size_sort(order):
+    """Sorts folders and files based on size"""
+    # Quicksort folders by size
+    # Quicksort
+    print("validation works")
+

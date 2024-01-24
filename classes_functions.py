@@ -130,5 +130,5 @@ def login() -> User:
     return None
     
 
-def dir(*arg):
+def dir(arg):
     ...

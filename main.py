@@ -3,6 +3,7 @@ from shell import Shell
 
 def main():
     shell = Shell()
+    shell.load()
     shell.loop()
 
 

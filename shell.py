@@ -134,7 +134,10 @@ class Shell:
                 else:
                     # Check for login command to update current user
                     if command != Command.commands["login"]:
-                        command()
+                        try:
+                            command()
+                        except TypeError:
+                            print("function needs arguments")
                     else:
                         self.currentUser = login()
             else:

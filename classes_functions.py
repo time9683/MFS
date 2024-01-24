@@ -27,7 +27,6 @@ class Folder:
         self.folders = []
 
     def get_size(self):
-        ### TODO
         # Add up size of contained files in current folder and contained folders
         size = 0
         for file in self.files:

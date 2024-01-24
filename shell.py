@@ -77,7 +77,8 @@ class Shell:
                   Ordena los resultados de la lista de forma ascendente o descendente.""",
             dir,
         )
-
+        
+        Command("shu","any","shu - lista las unidades","shu [unidad]",shu)
         # User for testing purposes
         User("admin", "admin", "admin")
 
@@ -151,24 +152,24 @@ class Shell:
         data = json.load(file)
         file.close()
         for unit in data["Units"]:
-            unidad = Unit(unit["id"],unit["name"],unit["totalSize"],unit["freeSize"],unit["type"])
+            unidad = Unit(unit["name"],unit["totalSize"],unit["freeSize"],unit["type"])
             for folder in unit["folders"]:
-                fold = Folder(folder["id"],folder["name"],folder["creationDate"],folder["modifyDate"])
+                fold = Folder(folder["name"],folder["creationDate"],folder["modifyDate"])
                 fol_folders,fol_files = self.loadFolder(folder)
                 fold.folders = fol_folders
                 fold.files = fol_files
                 unidad.folders.append(fold)   
         for user in data["Users"]:
-            User(user["id"],user["name"],user["password"],user["role"])
+            User(user["name"],user["password"],user["role"])
     
 # load the folders and files from the json file
     def loadFolder(self,folder):
         folders = []
         files = []
         for file in folder["files"]:
-                files.append(File(file["id"],file["name"],file["size"],file["creationDate"],file["modifyDate"],file["extension"],file["content"]))
+                files.append(File(file["name"],file["size"],file["creationDate"],file["modifyDate"],file["extension"],file["content"]))
         for folder in folder["folders"]:
-                fold = Folder(folder["id"],folder["name"],folder["creationDate"],folder["modifyDate"])
+                fold = Folder(folder["name"],folder["creationDate"],folder["modifyDate"])
                 folders_iter,files_iter =  self.loadFolder(folder)
                 fold.folders = folders_iter
                 fold.files = files_iter

@@ -309,8 +309,7 @@ def dir(arg:list) -> None:
 def size_sort(ls:list, order:str) -> list:
     """Sorts folders and files based on size using quicksort"""
     #TODO
-    # Quicksort folders by size
-    # Quicksort
+    # Quicksort folders by size, file.size or folder.get_size()
     print("validation works")
     return ls
 
@@ -324,19 +323,19 @@ def last_update_sort(ls: list, order:str) -> list:
 def creation_sort(ls: list, order:str) -> list:
     """Sorts folders and filed based on creation date using mergesort"""
     #TODO
-    # Parse file or folder.modifyDate into timestamp
+    # Parse file or folder.creationDate into timestamp
     print("validation also works here!")
     return ls
 
 def range_sort(ls: list, min: int, max: int, order:str) -> list:
-    """Filters folders and files in given range, then sorts using shellsort"""
+    """Filters folders and files in given size range, then sorts using shellsort"""
     #TODO
     print("validation is working here too!")
     return ls
 
 
 def value_sort(ls: list, value:int, criteria: str, order:str) -> list:
-    """Filters folders and files based on value, then sorts using heapsort"""
+    """Filters folders and files based on size value, then sorts using heapsort"""
     #TODO
     print("validation is working here too yayayayay!")
     return ls

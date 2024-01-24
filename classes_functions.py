@@ -193,8 +193,8 @@ def dir(arg:list) -> None:
         if len(arg) == 2 and arg[-1] in ["asc", "desc"]:
             # Sorting
             print(arg[-1])
-            size_sort(arg[-1])
-            size_sort(arg[-1])
+            folders = size_sort(folders, arg[-1])
+            files = size_sort(files, arg[-1])
 
             # Printing results
             for folder in folders:
@@ -204,13 +204,77 @@ def dir(arg:list) -> None:
                 print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
             # delete print color
             print(DEFAULT,end="")
+
+        # Date sorting
+        elif 2<= len(arg) <= 3:
+            match arg[1]:
+                case "-lastUpdate":
+                    # order arg validation
+                    if len(arg) == 3 and arg[-1] in ["asc", "desc"]:
+                        folders = last_update_sort(folders, arg[-1])
+                        files = last_update_sort(files, arg[-1])
+                    elif len(arg) == 2:
+                        folders = last_update_sort(folders, "asc")
+                        files = last_update_sort(files, "asc")
+                    else:
+                        print("invalid arguments")
+                        return
+
+                    # TODO Has error as the last one
+                    # print folders with modification date
+                    for folder in folders:
+                        print(OKBLUE + folder.name + "/")
+                    # print files
+                    for file in files:
+                        print(DEFAULT+file.name + "." + file.extension)
+                    # delete print color
+                    print(DEFAULT,end="")
+
+                case "-creation":
+                    # order arg validation
+                    if len(arg) == 3 and arg[-1] in ["asc", "desc"]:
+                        folders = creation_sort(folders, arg[-1])
+                        files = creation_sort(files, arg[-1])
+                    elif len(arg) == 2:
+                        folders = creation_sort(folders, "asc")
+                        files = creation_sort(files, "asc")
+                    else:
+                        print("invalid arguments")
+                        return
+
+                    # TODO Has error as the last one
+                    # Print result with creation date
+                    for folder in folders:
+                        print(OKBLUE + folder.name + "/: " + folder.creationDate)
+                    # print files
+                    for file in files:
+                        print(DEFAULT+file.name + "." + file.extension + ": " + file.creationDate)
+                    # delete print color
+                    print(DEFAULT,end="")
+                case _:
+                    print("invalid arguments")
+
+        # 
+
         else:
             print("invalid arguments")
 
 
-def size_sort(order):
+def size_sort(ls:list, order:str) -> list:
     """Sorts folders and files based on size"""
+    #TODO
     # Quicksort folders by size
     # Quicksort
     print("validation works")
 
+def last_update_sort(ls: list, order:str) -> list:
+    """Sorts folders and files based on last update"""
+    #TODO
+    # Parse file or folder.modifyDate into timestamp
+    print("validation works here too!")
+
+def creation_sort(ls: list, order:str) -> list:
+    """Sorts folders and filed based on creation date"""
+    #TODO
+    # Parse file or folder.modifyDate into timestamp
+    print("validation also works here!")

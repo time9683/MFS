@@ -1,3 +1,7 @@
+OKBLUE = '\033[94m'
+DEFAULT = '\033[0m'
+
+
 class File:
     """Class that represents a file in the system, including its metadata and content
     for listing and indexing purposes."""
@@ -101,7 +105,27 @@ def man(arg:list):
     else:
         print("argumentos incorrectos")
 
-def ls (arg):
+def login() -> User:
+    # Command process
+    name = input("user: ")
+    password = input("password: ")
+    if name in User.users:
+        if User.users[name].password == password:
+            print("Bienvenido " + name)
+            return User.users[name]
+        else:
+            print("password incorrecto")
+    else:
+        print("usuario no encontrado")
+
+    return None
+
+def shu():
+    for unit in Unit.units:
+        print(unit)
+    
+
+def dir(arg):
     if  arg == None:
         print("el comando ls necesita al menos un argumento: ls [unidad]:[directorio]  ")
         return
@@ -143,24 +167,4 @@ def ls (arg):
          print("unidad no encontrada")
     # delete color of print
     print(DEFAULT,end="")
-
-
-def login() -> User:
-    # Command process
-    name = input("user: ")
-    password = input("password: ")
-    if name in User.users:
-        if User.users[name].password == password:
-            print("Bienvenido " + name)
-            return User.users[name]
-        else:
-            print("password incorrecto")
-    else:
-        print("usuario no encontrado")
-
-    return None
-    
-
-def dir(arg):
-    ...
     

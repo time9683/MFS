@@ -152,16 +152,17 @@ def dir(arg:list) -> None:
             names = path.split("/")
             actual_folders = Unit.units[unidad].folders
             actual_folder = None
+            Numbers_or_correct_folders = 0
 
-            ### TODO WARNING: Lists path even when repeated Folder1/FOlder1/Folder1/
             for i in range(len(names)):
                 for j in range(len(actual_folders)):
                     if actual_folders[j].name == names[i]:
                         actual_folder = actual_folders[j]
                         actual_folders = actual_folder.folders
+                        Numbers_or_correct_folders += 1
                         break
 
-            if actual_folder == None:
+            if actual_folder == None or Numbers_or_correct_folders != len(names) -1:
                 print("directorio no encontrado")
                 return
             

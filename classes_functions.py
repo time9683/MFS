@@ -1,6 +1,7 @@
+import re
+
 OKBLUE = '\033[94m'
 DEFAULT = '\033[0m'
-
 
 class File:
     """Class that represents a file in the system, including its metadata and content
@@ -206,7 +207,7 @@ def dir(arg:list) -> None:
             print(DEFAULT,end="")
 
         # Date sorting
-        elif 2<= len(arg) <= 3:
+        elif len(arg) ==2 or len(arg) == 3 and arg[-1] in ["asc", "desc"]:
             match arg[1]:
                 case "-lastUpdate":
                     # order arg validation
@@ -214,19 +215,18 @@ def dir(arg:list) -> None:
                         folders = last_update_sort(folders, arg[-1])
                         files = last_update_sort(files, arg[-1])
                     elif len(arg) == 2:
-                        folders = last_update_sort(folders, "asc")
-                        files = last_update_sort(files, "asc")
+                        folders = last_update_sort(folders, "desc")
+                        files = last_update_sort(files, "desc")
                     else:
                         print("invalid arguments")
                         return
 
-                    # TODO Has error as the last one
                     # print folders with modification date
                     for folder in folders:
-                        print(OKBLUE + folder.name + "/")
+                        print(OKBLUE + folder.name + "/: " + folder.modifyDate)
                     # print files
                     for file in files:
-                        print(DEFAULT+file.name + "." + file.extension)
+                        print(DEFAULT+file.name + "." + file.extension + ": " + folder.modifyDate)
                     # delete print color
                     print(DEFAULT,end="")
 
@@ -236,13 +236,12 @@ def dir(arg:list) -> None:
                         folders = creation_sort(folders, arg[-1])
                         files = creation_sort(files, arg[-1])
                     elif len(arg) == 2:
-                        folders = creation_sort(folders, "asc")
-                        files = creation_sort(files, "asc")
+                        folders = creation_sort(folders, "desc")
+                        files = creation_sort(files, "desc")
                     else:
                         print("invalid arguments")
                         return
 
-                    # TODO Has error as the last one
                     # Print result with creation date
                     for folder in folders:
                         print(OKBLUE + folder.name + "/: " + folder.creationDate)
@@ -254,27 +253,90 @@ def dir(arg:list) -> None:
                 case _:
                     print("invalid arguments")
 
-        # 
+        # Range sorting
+        elif 3 <= len(arg) <= 4 and arg[1] == "-range":
+            # Interval sorting
+            if re.match("^\d+-\d+$", arg[2]):
+                min, max = arg[2].split("-")
+                min = int(min)
+                max = int(max)
+
+                # order arg validation
+                if len(arg) == 4 and arg[-1] in ["asc", "desc"]:
+                    folders = range_sort(folders, min, max, arg[-1])
+                    files = range_sort(files, min, max, arg[-1])
+                else:
+                    folders = range_sort(folders, min, max, "desc")
+                    files = range_sort(files, min, max, "desc")
+
+                # Printing results
+                for folder in folders:
+                    print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
+                # print files
+                for file in files:
+                    print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                # delete print color
+                print(DEFAULT,end="")
+
+            elif re.match("^\d+(?:>|<|=)$",arg[2]):
+                criteria = arg[2][-1]
+                value = int(arg[2][:-1])
+
+                # order arg validation
+                if len(arg) == 4 and arg[-1] in ["asc", "desc"]:
+                    folders = value_sort(folders, value, criteria, arg[-1])
+                    files = value_sort(files, value, criteria, arg[-1])
+                else:
+                    folders = value_sort(folders, value, criteria, "desc")
+                    files = value_sort(files, value, criteria, "desc")
+
+                # Printing results
+                for folder in folders:
+                    print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
+                # print files
+                for file in files:
+                    print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                # delete print color
+                print(DEFAULT,end="")
+
+            else:
+                print("invalid arguments")
 
         else:
             print("invalid arguments")
 
 
 def size_sort(ls:list, order:str) -> list:
-    """Sorts folders and files based on size"""
+    """Sorts folders and files based on size using quicksort"""
     #TODO
     # Quicksort folders by size
     # Quicksort
     print("validation works")
+    return ls
 
 def last_update_sort(ls: list, order:str) -> list:
-    """Sorts folders and files based on last update"""
+    """Sorts folders and files based on last update using mergesort"""
     #TODO
     # Parse file or folder.modifyDate into timestamp
     print("validation works here too!")
+    return ls
 
 def creation_sort(ls: list, order:str) -> list:
-    """Sorts folders and filed based on creation date"""
+    """Sorts folders and filed based on creation date using mergesort"""
     #TODO
     # Parse file or folder.modifyDate into timestamp
     print("validation also works here!")
+    return ls
+
+def range_sort(ls: list, min: int, max: int, order:str) -> list:
+    """Filters folders and files in given range, then sorts using shellsort"""
+    #TODO
+    print("validation is working here too!")
+    return ls
+
+
+def value_sort(ls: list, value:int, criteria: str, order:str) -> list:
+    """Filters folders and files based on value, then sorts using heapsort"""
+    #TODO
+    print("validation is working here too yayayayay!")
+    return ls

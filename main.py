@@ -1,4 +1,7 @@
 import os
+import json
+OKBLUE = '\033[94m'
+DEFAULT = '\033[0m'
 
 class File:
     def __init__(self, id,name,size,creationDate,modifyDate,extension,content):
@@ -8,6 +11,7 @@ class File:
         self.creationDate = creationDate
         self.modifyDate = modifyDate
         self.extension = extension
+        self.content = content
 
 
 
@@ -55,7 +59,7 @@ class User:
         self.name = name
         self.password = password
         self.role = role
-        self.currentFolder = "/"
+        self.currentFolder = None
         self.currentUnit = None
         User.users[self.name] = self
         
@@ -69,7 +73,7 @@ def man(arg,status):
 
     if len(arg) == 1:
         if arg[0] in Command.commands:
-            print(arg[0]  + " " + Command.commands[arg[0]].description)
+            print(Command.commands[arg[0]].description)
         else:
             print("Ninguna entrada del manual para " + arg[0])
     else:
@@ -78,16 +82,47 @@ def man(arg,status):
 
 
 def ls (arg,status):
-    unidad = arg[0]
-    ubication = arg[1]
+    if  arg == None:
+        print("el comando ls necesita al menos un argumento: ls [unidad]:[directorio]  ")
+        return
+    unidad = path = ""
+    try:
+        unidad,path = arg[0].split(":")
+    except ValueError:
+        print("argumentos invalidos")
+        return
+    
+    
     if unidad in Unit.units:
-         print("unidad encontrada")
-         if ubication == "/":
-              print("raiz")
-         else:
-              print("no raiz")
+        if path == "/":
+            for folder in Unit.units[unidad].folders:
+                print(OKBLUE + folder.name + "/")
+        else:
+            names = path.split("/")
+            actual_folders = Unit.units[unidad].folders
+            actual_folder = None
+            for i in range(len(names)):
+                for j in range(len(actual_folders)):
+                    if actual_folders[j].name == names[i]:
+                        actual_folder = actual_folders[j]
+                        actual_folders = actual_folder.folders
+                        break
+            if actual_folder == None:
+                print("directorio no encontrado")
+                return
+            
+            
+            for folder in actual_folders:
+                print(OKBLUE + folder.name + "/")
+                
+            if actual_folder != None and actual_folder.files != None:
+                for file in actual_folder.files:
+                    print(DEFAULT+file.name + "." + file.extension)
+    
     else:
          print("unidad no encontrada")
+    # delete color of print
+    print(DEFAULT,end="")
    
 
 def cd (arg,state):
@@ -130,25 +165,44 @@ def login(arg,state):
             print("password incorrecto")
     
 def exits(arg,state):
-    exit(0)
+    if arg != None:
+        exit(int(arg[0]))
+    else:
+        exit(0)
     
 
 def ps(arg,state):
     os.system("ps")
     
     
+def shut (arg,state):
+    print("unidad  tipo   total   libre")
+    for unit in Unit.units:
+        print("{:7} {:4} {:5}gb {:5}gb".format(unit,Unit.units[unit].type,Unit.units[unit].totalSize,Unit.units[unit].freeSize))
+        
+
+def pwd (arg,state):
+    if state.currentUser.currentUnit == None or state.currentUser.currentFolder == None:
+        print("no hay unidad seleccionada,por lo tanto no hay directorio actual")
+        return
+    print(state.currentUser.currentUnit.name + state.currentUser.currentFolder.name)
+    
+def clear(arg,state):
+    os.system("clear")
 
     
 class Shell:
     def __init__(self):
         self.currentUser = None
-        Command(1,"help","muestra los comandos disponibles","all",help)
-        Command(2,"man","muestra la descripcion del comando","all",man)
-        Command(3,"login","inicia sesion en el sistema","all",login)
-        Command(4,"exit","cierra la sesion actual","all",exits)
-        Command(5,"ps","muestra los procesos en ejecucion","all",ps)
-        User(1,"admin","admin","admin")
-        
+        Command(1,"help","Nombre \n     help - muestra los comandos disponibles \n Uso \n     help","all",help)
+        Command(2,"man", "Nombre \n     man - muestra la descripcion del comando \n Uso \n     man [comando]","all",man)
+        Command(3,"login","Nombre \n     login - Inicia session en el sistema \n Uso \n     login","all",login)
+        Command(4,"exit","Nombre \n     exit - Cierra el shell \n Uso \n     exit [Codigo de salida]","all",exits)
+        Command(5,"ps","Nombre \n     ps - lista los procesos en ejecucion \n Uso \n     ps -[options]","all",ps)
+        Command(6,"shut","Nombre \n     shut - lista las unidades disponibles \n Uso \n     shut","all",shut)
+        Command(7,"pwd","muestra el directorio actual","all",pwd)
+        Command(8,"ls","Nombre \n     ls - lista el contennido de los directorios \n Uso \n     ls  [options]  [UNIDAD]:[DIRECTORIOS]  ","all",ls)
+        Command(9,"clear","Nombre \n     clear - limpia la pantalla \n Uso \n     clear","all",clear)
         
     
     def loop(self):
@@ -188,9 +242,46 @@ class Shell:
             else:
                 print("command not found")
 
+# load the data from the json file and create the objects in memory
+    def load(self):
+        file = open("data.json","r")
+        data = json.load(file)
+        file.close()
+        for unit in data["Units"]:
+            unidad = Unit(unit["id"],unit["name"],unit["totalSize"],unit["freeSize"],unit["type"])
+            for folder in unit["folders"]:
+                fold = Folder(folder["id"],folder["name"],folder["creationDate"],folder["modifyDate"])
+                fol_folders,fol_files = self.loadFolder(folder)
+                fold.folders = fol_folders
+                fold.files = fol_files
+                unidad.folders.append(fold)   
+        for user in data["Users"]:
+            User(user["id"],user["name"],user["password"],user["role"])
+    
+# load the folders and files from the json file
+    def loadFolder(self,folder):
+        folders = []
+        files = []
+        for file in folder["files"]:
+                files.append(File(file["id"],file["name"],file["size"],file["creationDate"],file["modifyDate"],file["extension"],file["content"]))
+        for folder in folder["folders"]:
+                fold = Folder(folder["id"],folder["name"],folder["creationDate"],folder["modifyDate"])
+                folders_iter,files_iter =  self.loadFolder(folder)
+                fold.folders = folders_iter
+                fold.files = files_iter
+                folders.append(fold)
+        return folders,files
+                
+       
+        
+        
+         
+        
 
 def main():
     shell = Shell()
+    shell.load()
+    shell.currentUser = User.users["admin"]
     shell.loop()   
           
 

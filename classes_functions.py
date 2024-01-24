@@ -26,13 +26,15 @@ class Folder:
         self.files = []
         self.folders = []
 
-        ### TODO calling size raises TypeError
-        self.size = 0 # bytes
-
-    def size_calc(self):
+    def get_size(self):
         ### TODO
         # Add up size of contained files in current folder and contained folders
-        return 0
+        size = 0
+        for file in self.files:
+         size += file.size
+        for folder in self.folders:
+            size += folder.get_size()
+        return  size
 
 
 class Unit:
@@ -197,7 +199,7 @@ def dir(arg:list) -> None:
             # Printing results
             # TODO print folders need to add folder.size
             for folder in folders:
-                print(OKBLUE + folder.name + "/: " + str(folder.size))
+                print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
             # print files
             for file in files:
                 print(DEFAULT+file.name + "." + file.extension + ": " + file.size)

@@ -197,7 +197,7 @@ def dir(arg:list) -> None:
             # Printing results
             # TODO print folders need to add folder.size
             for folder in folders:
-                print(OKBLUE + folder.name + "/: ")
+                print(OKBLUE + folder.name + "/: " + str(folder.size))
             # print files
             for file in files:
                 print(DEFAULT+file.name + "." + file.extension + ": " + file.size)

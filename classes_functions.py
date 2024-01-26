@@ -202,7 +202,7 @@ def dir(arg:list) -> None:
                 print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
             # print files
             for file in files:
-                print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
             # delete print color
             print(DEFAULT,end="")
 
@@ -274,7 +274,7 @@ def dir(arg:list) -> None:
                     print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
                 # print files
                 for file in files:
-                    print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                    print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
                 # delete print color
                 print(DEFAULT,end="")
 
@@ -295,7 +295,7 @@ def dir(arg:list) -> None:
                     print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
                 # print files
                 for file in files:
-                    print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                    print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
                 # delete print color
                 print(DEFAULT,end="")
 

@@ -313,10 +313,18 @@ def dir(arg:list) -> None:
 
 def size_sort(ls:list, order:str) -> list:
     """Sorts folders and files based on size using quicksort"""
-    #TODO
-    # Quicksort folders by size, file.size or folder.get_size()
-    print("validation works")
-    return ls
+    if len(ls) <= 1:
+        return ls
+    
+    pivot = ls[0]
+    smaller = [x for x in ls[1:] if x.size <= pivot.size]
+    greater = [x for x in ls[1:] if x.size > pivot.size]
+    
+    if order == 'asc':
+        return size_sort(smaller, order) + [pivot] + size_sort(greater, order)
+    else:
+        return size_sort(greater, order) + [pivot] + size_sort(smaller, order)
+
 
 def last_update_sort(ls: list, order:str) -> list:
     """Sorts folders and files based on last update using mergesort"""

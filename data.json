@@ -18,7 +18,7 @@
                 {
                     "id":1,
                     "name":"File1",
-                    "size":10,
+                    "size":20,
                     "creationDate":"2020-01-01",
                     "modifyDate":"2020-01-01",
                     "extension":"txt",
@@ -44,7 +44,7 @@
                         {
                             "id":3,
                             "name":"File3",
-                            "size":10,
+                            "size":25,
                             "creationDate":"2020-01-01",
                             "modifyDate":"2020-01-01",
                             "extension":"txt",
@@ -85,7 +85,7 @@
                 {
                     "id":5,
                     "name":"File5",
-                    "size":10,
+                    "size":30,
                     "creationDate":"2020-01-01",
                     "modifyDate":"2020-01-01",
                     "extension":"txt",
@@ -94,7 +94,7 @@
                 {
                     "id":6,
                     "name":"File6",
-                    "size":10,
+                    "size":5,
                     "creationDate":"2020-01-01",
                     "modifyDate":"2020-01-01",
                     "extension":"txt",
@@ -121,7 +121,7 @@
                 {
                     "id":8,
                     "name":"File8",
-                    "size":10,
+                    "size":30,
                     "creationDate":"2020-01-01",
                     "modifyDate":"2020-01-01",
                     "extension":"txt",

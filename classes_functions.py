@@ -231,7 +231,7 @@ def dir(arg:list) -> None:
                         print(OKBLUE + folder.name + "/: " + folder.modifyDate)
                     # print files
                     for file in files:
-                        print(DEFAULT+file.name + "." + file.extension + ": " + folder.modifyDate)
+                        print(DEFAULT+file.name + "." + file.extension + ": " + file.modifyDate)
                     # delete print color
                     print(DEFAULT,end="")
 
@@ -328,10 +328,36 @@ def size_sort(ls:list, order:str) -> list:
 
 def last_update_sort(ls: list, order:str) -> list:
     """Sorts folders and files based on last update using mergesort"""
-    #TODO
-    # Parse file or folder.modifyDate into timestamp
-    print("validation works here too!")
-    return ls
+    if len(ls) <= 1:
+        return ls
+
+    mid = len(ls) // 2
+    left = ls[:mid]
+    right = ls[mid:]
+
+    left = last_update_sort(left, order)
+    right = last_update_sort(right, order)
+
+    return merge(left, right, order)
+
+def merge(left: list, right: list, order: str) -> list:
+    """Merges two sorted lists of files and folders based on modified date"""
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (order == 'asc' and left[i].modifyDate <= right[j].modifyDate) or \
+           (order == 'desc' and left[i].modifyDate >= right[j].modifyDate):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
 
 def creation_sort(ls: list, order:str) -> list:
     """Sorts folders and filed based on creation date using mergesort"""

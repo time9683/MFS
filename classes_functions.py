@@ -26,15 +26,20 @@ class Folder:
         self.modifyDate = modifyDate  # timestamp
         self.files = []
         self.folders = []
+        self.size = 0  # bytes
+   
+    #  append function for files and folders
+    #this function is used to add files and folders to the folder and add size to the folder
+    def append(self, Element):
+        if isinstance(Element, File):
+            self.files.append(Element)
+            self.size += Element.size
+        elif isinstance(Element, Folder):
+            self.folders.append(Element)
+            self.size += Element.size
 
-    def get_size(self):
-        # Add up size of contained files in current folder and contained folders
-        size = 0
-        for file in self.files:
-         size += file.size
-        for folder in self.folders:
-            size += folder.get_size()
-        return  size
+        
+        
 
 
 class Unit:
@@ -199,10 +204,10 @@ def dir(arg:list) -> None:
 
             # Printing results
             for folder in folders:
-                print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
+                print(OKBLUE + folder.name + "/: " + str(folder.size) )
             # print files
             for file in files:
-                print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
             # delete print color
             print(DEFAULT,end="")
 
@@ -271,10 +276,10 @@ def dir(arg:list) -> None:
 
                 # Printing results
                 for folder in folders:
-                    print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
+                    print(OKBLUE + folder.name + "/: " + str(folder.size) )
                 # print files
                 for file in files:
-                    print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                    print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
                 # delete print color
                 print(DEFAULT,end="")
 
@@ -292,10 +297,10 @@ def dir(arg:list) -> None:
 
                 # Printing results
                 for folder in folders:
-                    print(OKBLUE + folder.name + "/: " + str(folder.get_size()) )
+                    print(OKBLUE + folder.name + "/: " + str(folder.size) )
                 # print files
                 for file in files:
-                    print(DEFAULT+file.name + "." + file.extension + ": " + file.size)
+                    print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
                 # delete print color
                 print(DEFAULT,end="")
 

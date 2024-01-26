@@ -159,8 +159,11 @@ class Shell:
             for folder in unit["folders"]:
                 fold = Folder(folder["name"],folder["creationDate"],folder["modifyDate"])
                 fol_folders,fol_files = self.loadFolder(folder)
-                fold.folders = fol_folders
-                fold.files = fol_files
+                
+                for fol in fol_folders:
+                    fold.append(fol)
+                for fil in fol_files:
+                    fold.append(fil)                
                 unidad.folders.append(fold)   
         for user in data["Users"]:
             User(user["name"],user["password"],user["role"])
@@ -174,8 +177,10 @@ class Shell:
         for folder in folder["folders"]:
                 fold = Folder(folder["name"],folder["creationDate"],folder["modifyDate"])
                 folders_iter,files_iter =  self.loadFolder(folder)
-                fold.folders = folders_iter
-                fold.files = files_iter
+                for fol in folders_iter:
+                    fold.append(fol)                    
+                for fil in files_iter:
+                    fold.append(fil)
                 folders.append(fold)
         return folders,files
                 

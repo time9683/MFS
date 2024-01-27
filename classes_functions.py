@@ -407,13 +407,6 @@ def range_sort(ls: list, min: int, max: int, order: str) -> list:
     return filtered
 
 
-def value_sort(ls: list, value:int, criteria: str, order:str) -> list:
-    """Filters folders and files based on size value, then sorts using heapsort"""
-    #TODO
-    print("validation is working here too yayayayay!")
-    return ls
-
-
 def value_sort(ls: list, value: int, criteria: str, order: str) -> list:
     filtered = []
     for item in ls:

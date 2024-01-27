@@ -260,13 +260,29 @@ def dir(arg:list) -> None:
 
         # Range sorting
         
-        elif 3 <= len(arg) <= 5 and arg[1] == "-range":
+        elif 3 <= len(arg) <= 5 and arg[1] == "-range" :
             # Interval sorting
+            
+            # extension filter for files
+            ext = ""
+            if len(arg) >= 4:
+                if arg[3] != "-ext" or len(arg) != 5 :
+                    print("invalid arguments")
+                    return
+                ext = arg[4]
+                new_files = []
+                for file in files:
+                    if file.extension == ext:
+                        new_files.append(file)
+                files = new_files
+            
+            
+            
             if re.match("^\d+-\d+$", arg[2]):
                 min, max = arg[2].split("-")
                 min = int(min)
                 max = int(max)
-
+                      
                 # order arg validation
                 if len(arg) == 4 and arg[-1] in ["asc", "desc"]:
                     folders = range_sort(folders, min, max, arg[-1])
@@ -439,10 +455,10 @@ def heapify(arr: list, n: int, i: int):
     left = 2 * i + 1
     right = 2 * i + 2
     
-    if left < n and arr[left] > arr[largest]:
+    if left < n and arr[left].size > arr[largest].size:
         largest = left
     
-    if right < n and arr[right] > arr[largest]:
+    if right < n and arr[right].size > arr[largest].size:
         largest = right
     
     if largest != i:

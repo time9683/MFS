@@ -259,7 +259,8 @@ def dir(arg:list) -> None:
                     print("invalid arguments")
 
         # Range sorting
-        elif 3 <= len(arg) <= 4 and arg[1] == "-range":
+        
+        elif 3 <= len(arg) <= 5 and arg[1] == "-range":
             # Interval sorting
             if re.match("^\d+-\d+$", arg[2]):
                 min, max = arg[2].split("-")
@@ -395,15 +396,14 @@ def merge_c(left: list, right: list, order: str) -> list:
 
 
 
-def range_sort(ls: list, min: int, max: int, order: str) -> list:
+def range_sort(ls: list  , min: int, max: int, order: str) -> list:
     """Filters folders and files in given size range, then sorts using shellsort"""
     filtered = []
     for item in ls:
         size = item.size
         if min <= size <= max:
             filtered.append(item)
-    
-    filtered.sort(reverse=(order == "desc"))
+    filtered.sort(key=lambda x: x.size, reverse=(order == "desc"))
     return filtered
 
 

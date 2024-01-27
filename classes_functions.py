@@ -393,11 +393,18 @@ def merge_c(left: list, right: list, order: str) -> list:
 
     return result
 
-def range_sort(ls: list, min: int, max: int, order:str) -> list:
+
+
+def range_sort(ls: list, min: int, max: int, order: str) -> list:
     """Filters folders and files in given size range, then sorts using shellsort"""
-    #TODO
-    print("validation is working here too!")
-    return ls
+    filtered = []
+    for item in ls:
+        size = item.size
+        if min <= size <= max:
+            filtered.append(item)
+    
+    filtered.sort(reverse=(order == "desc"))
+    return filtered
 
 
 def value_sort(ls: list, value:int, criteria: str, order:str) -> list:
@@ -405,3 +412,46 @@ def value_sort(ls: list, value:int, criteria: str, order:str) -> list:
     #TODO
     print("validation is working here too yayayayay!")
     return ls
+
+
+def value_sort(ls: list, value: int, criteria: str, order: str) -> list:
+    filtered = []
+    for item in ls:
+        size = item.size
+        if criteria == ">" and size > value:
+            filtered.append(item)
+        elif criteria == "<" and size < value:
+            filtered.append(item)
+        elif criteria == "=" and size == value:
+            filtered.append(item)
+    
+    heap_sort(filtered, order)
+    return filtered
+
+def heap_sort(arr: list, order: str):
+    n = len(arr)
+    
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i)
+    
+    for i in range(n - 1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        heapify(arr, i, 0)
+    
+    if order == "desc":
+        arr.reverse()
+
+def heapify(arr: list, n: int, i: int):
+    largest = i
+    left = 2 * i + 1
+    right = 2 * i + 2
+    
+    if left < n and arr[left] > arr[largest]:
+        largest = left
+    
+    if right < n and arr[right] > arr[largest]:
+        largest = right
+    
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        heapify(arr, n, largest)

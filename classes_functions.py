@@ -359,12 +359,39 @@ def merge(left: list, right: list, order: str) -> list:
 
     return result
 
-def creation_sort(ls: list, order:str) -> list:
-    """Sorts folders and filed based on creation date using mergesort"""
-    #TODO
-    # Parse file or folder.creationDate into timestamp
-    print("validation also works here!")
-    return ls
+
+def creation_sort(ls: list, order: str) -> list:
+    """Sorts folders and files based on creation date using mergesort"""
+    if len(ls) <= 1:
+        return ls
+
+    mid = len(ls) // 2
+    left = ls[:mid]
+    right = ls[mid:]
+
+    left = creation_sort(left, order)
+    right = creation_sort(right, order)
+
+    return merge_c(left, right, order)
+
+def merge_c(left: list, right: list, order: str) -> list:
+    """Merges two sorted lists of files and folders based on creation date"""
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (order == 'asc' and left[i].creationDate < right[j].creationDate) or \
+           (order == 'desc' and left[i].creationDate > right[j].creationDate):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
 
 def range_sort(ls: list, min: int, max: int, order:str) -> list:
     """Filters folders and files in given size range, then sorts using shellsort"""

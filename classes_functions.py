@@ -231,7 +231,7 @@ def dir(arg:list) -> None:
                         print(OKBLUE + folder.name + "/: " + folder.modifyDate)
                     # print files
                     for file in files:
-                        print(DEFAULT+file.name + "." + file.extension + ": " + folder.modifyDate)
+                        print(DEFAULT+file.name + "." + file.extension + ": " + file.modifyDate)
                     # delete print color
                     print(DEFAULT,end="")
 
@@ -313,34 +313,138 @@ def dir(arg:list) -> None:
 
 def size_sort(ls:list, order:str) -> list:
     """Sorts folders and files based on size using quicksort"""
-    #TODO
-    # Quicksort folders by size, file.size or folder.get_size()
-    print("validation works")
-    return ls
+    if len(ls) <= 1:
+        return ls
+    
+    pivot = ls[0]
+    smaller = [x for x in ls[1:] if x.size <= pivot.size]
+    greater = [x for x in ls[1:] if x.size > pivot.size]
+    
+    if order == 'asc':
+        return size_sort(smaller, order) + [pivot] + size_sort(greater, order)
+    else:
+        return size_sort(greater, order) + [pivot] + size_sort(smaller, order)
+
 
 def last_update_sort(ls: list, order:str) -> list:
     """Sorts folders and files based on last update using mergesort"""
-    #TODO
-    # Parse file or folder.modifyDate into timestamp
-    print("validation works here too!")
-    return ls
+    if len(ls) <= 1:
+        return ls
 
-def creation_sort(ls: list, order:str) -> list:
-    """Sorts folders and filed based on creation date using mergesort"""
-    #TODO
-    # Parse file or folder.creationDate into timestamp
-    print("validation also works here!")
-    return ls
+    mid = len(ls) // 2
+    left = ls[:mid]
+    right = ls[mid:]
 
-def range_sort(ls: list, min: int, max: int, order:str) -> list:
+    left = last_update_sort(left, order)
+    right = last_update_sort(right, order)
+
+    return merge(left, right, order)
+
+def merge(left: list, right: list, order: str) -> list:
+    """Merges two sorted lists of files and folders based on modified date"""
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (order == 'asc' and left[i].modifyDate <= right[j].modifyDate) or \
+           (order == 'desc' and left[i].modifyDate >= right[j].modifyDate):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
+
+
+def creation_sort(ls: list, order: str) -> list:
+    """Sorts folders and files based on creation date using mergesort"""
+    if len(ls) <= 1:
+        return ls
+
+    mid = len(ls) // 2
+    left = ls[:mid]
+    right = ls[mid:]
+
+    left = creation_sort(left, order)
+    right = creation_sort(right, order)
+
+    return merge_c(left, right, order)
+
+def merge_c(left: list, right: list, order: str) -> list:
+    """Merges two sorted lists of files and folders based on creation date"""
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if (order == 'asc' and left[i].creationDate < right[j].creationDate) or \
+           (order == 'desc' and left[i].creationDate > right[j].creationDate):
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
+
+
+
+def range_sort(ls: list, min: int, max: int, order: str) -> list:
     """Filters folders and files in given size range, then sorts using shellsort"""
-    #TODO
-    print("validation is working here too!")
-    return ls
+    filtered = []
+    for item in ls:
+        size = item.size
+        if min <= size <= max:
+            filtered.append(item)
+    
+    filtered.sort(reverse=(order == "desc"))
+    return filtered
 
 
-def value_sort(ls: list, value:int, criteria: str, order:str) -> list:
-    """Filters folders and files based on size value, then sorts using heapsort"""
-    #TODO
-    print("validation is working here too yayayayay!")
-    return ls
+def value_sort(ls: list, value: int, criteria: str, order: str) -> list:
+    filtered = []
+    for item in ls:
+        size = item.size
+        if criteria == ">" and size > value:
+            filtered.append(item)
+        elif criteria == "<" and size < value:
+            filtered.append(item)
+        elif criteria == "=" and size == value:
+            filtered.append(item)
+    
+    heap_sort(filtered, order)
+    return filtered
+
+def heap_sort(arr: list, order: str):
+    n = len(arr)
+    
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i)
+    
+    for i in range(n - 1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        heapify(arr, i, 0)
+    
+    if order == "desc":
+        arr.reverse()
+
+def heapify(arr: list, n: int, i: int):
+    largest = i
+    left = 2 * i + 1
+    right = 2 * i + 2
+    
+    if left < n and arr[left] > arr[largest]:
+        largest = left
+    
+    if right < n and arr[right] > arr[largest]:
+        largest = right
+    
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        heapify(arr, n, largest)

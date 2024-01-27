@@ -260,15 +260,9 @@ def dir(arg:list) -> None:
 
         # Range sorting
         
-        elif 3 <= len(arg) <= 5 and arg[1] == "-range" :
-            # Interval sorting
-            
-            # extension filter for files
-            ext = ""
-            if len(arg) >= 4:
-                if arg[3] != "-ext" or len(arg) != 5 :
-                    print("invalid arguments")
-                    return
+        elif 3 <= len(arg) <= 6 and arg[1] == "-range" : 
+            ext = ""            
+            if len(arg) > 4:
                 ext = arg[4]
                 new_files = []
                 for file in files:
@@ -276,6 +270,11 @@ def dir(arg:list) -> None:
                         new_files.append(file)
                 files = new_files
             
+            if len(arg) == 4 and (arg[3] == "-ext" or not( arg[3] in ["asc", "desc"])) :
+                print("invalid arguments")
+                return
+            
+                
             
             
             if re.match("^\d+-\d+$", arg[2]):
@@ -284,7 +283,7 @@ def dir(arg:list) -> None:
                 max = int(max)
                       
                 # order arg validation
-                if len(arg) == 4 and arg[-1] in ["asc", "desc"]:
+                if (len(arg) == 4 or len(arg) == 6) and arg[-1] in ["asc", "desc"]:
                     folders = range_sort(folders, min, max, arg[-1])
                     files = range_sort(files, min, max, arg[-1])
                 else:
@@ -305,7 +304,7 @@ def dir(arg:list) -> None:
                 value = int(arg[2][:-1])
 
                 # order arg validation
-                if len(arg) == 4 and arg[-1] in ["asc", "desc"]:
+                if (len(arg) == 4 or len(arg)==6) and arg[-1] in ["asc", "desc"]:
                     folders = value_sort(folders, value, criteria, arg[-1])
                     files = value_sort(files, value, criteria, arg[-1])
                 else:

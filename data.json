@@ -5,8 +5,7 @@
 {
     "id":1,
     "name":"C",
-    "totalSize":100,
-    "freeSize":50,
+    "totalSize":500,
     "type":"HDD",
     "folders":[ 
         {
@@ -18,7 +17,7 @@
                 {
                     "id":1,
                     "name":"File1",
-                    "size":20,
+                    "size":3,
                     "creationDate":"2019-01-01",
                     "modifyDate":"2020-08-01",
                     "extension":"html",
@@ -27,7 +26,7 @@
                 {
                     "id":2,
                     "name":"File2",
-                    "size":10,
+                    "size":45,
                     "creationDate":"2022-01-01",
                     "modifyDate":"2020-10-01",
                     "extension":"txt",
@@ -36,7 +35,7 @@
             {
                 "id":3,
                 "name":"File3",
-                "size":25,
+                "size":21,
                 "creationDate":"2022-01-03",
                 "modifyDate":"2024-01-03",
                 "extension":"txt",
@@ -54,7 +53,7 @@
             {
                 "id":5,
                 "name":"File5",
-                "size":30,
+                "size":25,
                 "creationDate":"2021-01-01",
                 "modifyDate":"2023-04-01",
                 "extension":"txt",
@@ -81,7 +80,7 @@
             {
                 "id":8,
                 "name":"File8",
-                "size":30,
+                "size":25,
                 "creationDate":"2020-01-08",
                 "modifyDate":"2020-01-01",
                 "extension":"txt",
@@ -98,7 +97,7 @@
                         {
                             "id":3,
                             "name":"File3",
-                            "size":25,
+                            "size":15,
                             "creationDate":"2020-01-03",
                             "modifyDate":"2020-01-03",
                             "extension":"txt",
@@ -127,7 +126,6 @@
     "id":2,
     "name":"D",
     "totalSize":100,
-    "freeSize":50,
     "type":"USB",
     "folders":[
         {

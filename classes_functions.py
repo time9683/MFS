@@ -49,16 +49,23 @@ class Unit:
     # Dictionary that contains all the units in the system
     units = dict()
 
-    def __init__(self, name, totalSize, freeSize, type):
+    def __init__(self, name, totalSize,type):
         self.name = name
         self.totalSize = totalSize  # bytes
-        self.freeSize = freeSize  # bytes
+        self.freeSize = totalSize  # bytes
         self.type = type  # HDD,SSD,USB,etc.
         self.folders = []
 
         # Add unit to the units dictionary
         if self.name not in Unit.units:
             Unit.units[self.name] = self
+            
+    def append(self, Element):
+        if isinstance(Element, Folder):
+            self.folders.append(Element)
+            self.freeSize -= Element.size
+        else:
+            print("invalid element")
 
 
 class Command:
@@ -133,8 +140,10 @@ def login() -> User:
     return None
 
 def shu():
+    print("Unidad  Tipo   Total  Libre")
     for unit in Unit.units:
-        print(unit)
+        # print with format
+        print("{:7} {:6} {:5} {:5}".format(Unit.units[unit].name, Unit.units[unit].type, Unit.units[unit].totalSize, Unit.units[unit].freeSize))
     
 
 def dir(arg:list) -> None:

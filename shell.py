@@ -155,7 +155,7 @@ class Shell:
         with open("data.json","r") as file:
             data = json.load(file)
         for unit in data["Units"]:
-            unidad = Unit(unit["name"],unit["totalSize"],unit["freeSize"],unit["type"])
+            unidad = Unit(unit["name"],unit["totalSize"],unit["type"])
             for folder in unit["folders"]:
                 fold = Folder(folder["name"],folder["creationDate"],folder["modifyDate"])
                 fol_folders,fol_files = self.loadFolder(folder)
@@ -164,7 +164,7 @@ class Shell:
                     fold.append(fol)
                 for fil in fol_files:
                     fold.append(fil)                
-                unidad.folders.append(fold)   
+                unidad.append(fold)   
         for user in data["Users"]:
             User(user["name"],user["password"],user["role"])
     

@@ -3,6 +3,20 @@ import re
 OKBLUE = '\033[94m'
 DEFAULT = '\033[0m'
 
+class linketList:
+    def __init__(self) -> None:
+        self.head = None
+        pass
+    
+class Node:
+    def __init__(self, data) -> None:
+        self.data = data
+        self.next = None
+
+
+
+
+
 class File:
     """Class that represents a file in the system, including its metadata and content
     for listing and indexing purposes."""
@@ -24,18 +38,20 @@ class Folder:
         self.name = name
         self.creationDate = creationDate  # timestamp
         self.modifyDate = modifyDate  # timestamp
-        self.files = []
-        self.folders = []
+        self.childrens = linketList()
         self.size = 0  # bytes
    
     #  append function for files and folders
     #this function is used to add files and folders to the folder and add size to the folder
     def append(self, Element):
-        if isinstance(Element, File):
-            self.files.append(Element)
+        if self.childrens.head == None:
+            self.childrens.head = Node(Element)
             self.size += Element.size
-        elif isinstance(Element, Folder):
-            self.folders.append(Element)
+        else:
+            current = self.childrens.head
+            while current.next != None:
+                current = current.next
+            current.next = Node(Element)
             self.size += Element.size
 
         
@@ -54,18 +70,22 @@ class Unit:
         self.totalSize = totalSize  # bytes
         self.freeSize = totalSize  # bytes
         self.type = type  # HDD,SSD,USB,etc.
-        self.folders = []
+        self.childrens = linketList()
 
         # Add unit to the units dictionary
         if self.name not in Unit.units:
             Unit.units[self.name] = self
             
     def append(self, Element):
-        if isinstance(Element, Folder):
-            self.folders.append(Element)
+        if self.childrens.head == None:
+            self.childrens.head = Node(Element)
             self.freeSize -= Element.size
         else:
-            print("invalid element")
+            current = self.childrens.head
+            while current.next != None:
+                current = current.next
+            current.next = Node(Element)
+            self.freeSize -= Element.size
 
 
 class Command:
@@ -161,32 +181,36 @@ def dir(arg:list) -> None:
     # Listing files and folders
     if unidad in Unit.units:
         if path == "/":
-            for folder in Unit.units[unidad].folders:
-                folders.append(folder)
+            currentFolder = Unit.units[unidad].childrens.head
+            while currentFolder != None:
+                folders.append(currentFolder.data)
+                currentFolder = currentFolder.next  
         else:
             names = path.split("/")
-            actual_folders = Unit.units[unidad].folders
-            actual_folder = None
+            actual_folder = Unit.units[unidad].childrens.head
+            # actual_folder = None
             Numbers_or_correct_folders = 0
-
             for i in range(len(names)):
-                for j in range(len(actual_folders)):
-                    if actual_folders[j].name == names[i]:
-                        actual_folder = actual_folders[j]
-                        actual_folders = actual_folder.folders
+                while actual_folder != None:
+                    if actual_folder.data.name == names[i]:
+                        actual_folder = actual_folder.data.childrens.head
                         Numbers_or_correct_folders += 1
-                        break
+                    break
+                    
 
             if actual_folder == None or Numbers_or_correct_folders != len(names) -1:
                 print("directorio no encontrado")
                 return
             
-            for folder in actual_folders:
-                folders.append(folder)
-                
-            if actual_folder != None and actual_folder.files != None:
-                for file in actual_folder.files:
-                    files.append(file)                
+            while actual_folder != None:
+                folders.append(actual_folder.data)
+                actual_folder = actual_folder.next
+       
+                    
+                    
+                    
+                    
+                       
     else:
          print("unidad no encontrada")
 
@@ -194,31 +218,18 @@ def dir(arg:list) -> None:
     # Standard listing
     if len(arg) == 1:
         # print folders
-        for folder in folders:
-            print(OKBLUE + folder.name + "/")
-        # print files
-        for file in files:
-            print(DEFAULT+file.name + "." + file.extension)
-        # delete print color
-        print(DEFAULT,end="")
+       print_childrens(folders)
 
     # Argument listing
     else:
         # Size sorting ascendently or descendently
         if len(arg) == 2 and arg[-1] in ["asc", "desc"]:
             # Sorting
-            print(arg[-1])
             folders = size_sort(folders, arg[-1])
             files = size_sort(files, arg[-1])
 
             # Printing results
-            for folder in folders:
-                print(OKBLUE + folder.name + "/: " + str(folder.size) )
-            # print files
-            for file in files:
-                print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
-            # delete print color
-            print(DEFAULT,end="")
+            print_childrens(folders)
 
         # Date sorting
         elif len(arg) ==2 or len(arg) == 3 and arg[-1] in ["asc", "desc"]:
@@ -236,13 +247,7 @@ def dir(arg:list) -> None:
                         return
 
                     # print folders with modification date
-                    for folder in folders:
-                        print(OKBLUE + folder.name + "/: " + folder.modifyDate)
-                    # print files
-                    for file in files:
-                        print(DEFAULT+file.name + "." + file.extension + ": " + file.modifyDate)
-                    # delete print color
-                    print(DEFAULT,end="")
+                    print_childrens(folders)
 
                 case "-creation":
                     # order arg validation
@@ -257,13 +262,7 @@ def dir(arg:list) -> None:
                         return
 
                     # Print result with creation date
-                    for folder in folders:
-                        print(OKBLUE + folder.name + "/: " + folder.creationDate)
-                    # print files
-                    for file in files:
-                        print(DEFAULT+file.name + "." + file.extension + ": " + file.creationDate)
-                    # delete print color
-                    print(DEFAULT,end="")
+                    print_childrens(folders)
                 case _:
                     print("invalid arguments")
 
@@ -300,13 +299,7 @@ def dir(arg:list) -> None:
                     files = range_sort(files, min, max, "desc")
 
                 # Printing results
-                for folder in folders:
-                    print(OKBLUE + folder.name + "/: " + str(folder.size) )
-                # print files
-                for file in files:
-                    print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
-                # delete print color
-                print(DEFAULT,end="")
+                print_childrens(folders)
 
             elif re.match("^\d+(?:>|<|=)$",arg[2]):
                 criteria = arg[2][-1]
@@ -321,13 +314,7 @@ def dir(arg:list) -> None:
                     files = value_sort(files, value, criteria, "desc")
 
                 # Printing results
-                for folder in folders:
-                    print(OKBLUE + folder.name + "/: " + str(folder.size) )
-                # print files
-                for file in files:
-                    print(DEFAULT+file.name + "." + file.extension + ": " + str(file.size))
-                # delete print color
-                print(DEFAULT,end="")
+                print_childrens(folders)
 
             else:
                 print("invalid arguments")
@@ -472,3 +459,14 @@ def heapify(arr: list, n: int, i: int):
     if largest != i:
         arr[i], arr[largest] = arr[largest], arr[i]
         heapify(arr, n, largest)
+        
+        
+        
+def print_childrens(childrens:list):
+    for child in childrens:
+        if isinstance(child, Folder):
+            print(OKBLUE + child.name + "/")
+        else:
+            print(DEFAULT + child.name + "." + child.extension)
+        
+    print(DEFAULT,end="")

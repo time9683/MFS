@@ -10,7 +10,7 @@ class Shell:
 
     def __init__(self):
         self.currentUser: User = None
-
+        
         # List of commands in the system
         Command(
             "help",
@@ -85,6 +85,13 @@ class Shell:
 
         # User for testing purposes
         User("admin", "admin", "admin")
+        
+        Command("log",
+                "any",
+                "log - muestra el log del sistema",
+                """log 
+                Muestra el log del sistema""",
+                log)
 
     def loop(self):
         prompt = ""
@@ -114,6 +121,7 @@ class Shell:
                 self.currentUser == None
                 and prompt[0] not in ["login", "help", "exit"]
             ):
+                Logs.append(Log(" ".join(prompt),prompt[0],"no hay usuario logueado, por favor utilizar comando login"))
                 print("no hay usuario logueado, por favor utilizar comando login")
                 continue
 
@@ -146,7 +154,8 @@ class Shell:
                     else:
                         self.currentUser = login()
             else:
-                print("command not found")
+                Logs.append(Log(" ".join(prompt),prompt[0],"comando no encontrado"))
+                print("comando no encontrado")
                             
     
 # load the data from the json file and create the objects in memory
@@ -183,4 +192,6 @@ class Shell:
                     fold.append(fil)
                 folders.append(fold)
         return folders,files
+    
+
                 

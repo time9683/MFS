@@ -2,6 +2,7 @@ import re
 
 OKBLUE = '\033[94m'
 DEFAULT = '\033[0m'
+RED = '\033[91m'
 
 class linketList:
     def __init__(self) -> None:
@@ -13,6 +14,39 @@ class Node:
         self.data = data
         self.next = None
 
+class Logs:
+    head = None 
+   
+    @staticmethod
+    def append(log):
+        if Logs.head == None:
+                Logs.head = Node(log)
+        else:
+            current = Logs.head
+            Logs.head = Node(log)
+            Logs.head.next = current
+            
+    @staticmethod
+    def print_logs():
+        current = Logs.head
+        while current != None:
+            print(current.data)
+            current = current.next
+            
+            
+class Log:
+    def __init__(self,promp,command,result) -> None:
+            self.promp = promp;
+            self.command = command
+            self.result = result
+            
+    def __str__(self):
+            return f"[{self.command}] Running '{self.promp}' -> {  RED + self.result + DEFAULT}"
+         
+ 
+
+            
+   
 
 
 
@@ -175,6 +209,7 @@ def dir(arg:list) -> None:
     try:
         unidad,path = arg[0].split(":")
     except ValueError:
+        Logs.append(Log("dir " + arg[0]  ,"dir","argumentos invalidos"))
         print("argumentos invalidos")
         return
     
@@ -188,7 +223,6 @@ def dir(arg:list) -> None:
         else:
             names = path.split("/")
             actual_folder = Unit.units[unidad].childrens.head
-            # actual_folder = None
             Numbers_or_correct_folders = 0
             for i in range(len(names)):
                 while actual_folder != None:
@@ -200,6 +234,7 @@ def dir(arg:list) -> None:
 
             if actual_folder == None or Numbers_or_correct_folders != len(names) -1:
                 print("directorio no encontrado")
+                Logs.append(Log("dir " + unidad + ":" + path  ,"dir","directorio no encontrado"))
                 return
             
             while actual_folder != None:
@@ -212,6 +247,7 @@ def dir(arg:list) -> None:
                     
                        
     else:
+         Logs.append(Log("dir " + arg[0]  ,"dir","unidad no encontrada"))
          print("unidad no encontrada")
 
     # Addressing listing criteria
@@ -243,6 +279,7 @@ def dir(arg:list) -> None:
                         folders = last_update_sort(folders, "desc")
                         files = last_update_sort(files, "desc")
                     else:
+                        Logs.append(Log("dir " + unidad + ":" +  path + "-lastUpdate " + arg[-1]  ,"dir","argumentos invalidos"))
                         print("invalid arguments")
                         return
 
@@ -463,10 +500,15 @@ def heapify(arr: list, n: int, i: int):
         
         
 def print_childrens(childrens:list):
+    text =  '' 
     for child in childrens:
         if isinstance(child, Folder):
-            print(OKBLUE + child.name + "/")
+            text += OKBLUE + child.name + "/" + "\n"
         else:
-            print(DEFAULT + child.name + "." + child.extension)
-        
-    print(DEFAULT,end="")
+            text += DEFAULT + child.name + "." + child.extension + "\n"
+    Logs.append(Log("dir unidad:/path" ,"dir",text))
+    print(text + DEFAULT, end="")
+    
+    
+def log():
+    Logs.print_logs()

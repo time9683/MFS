@@ -282,7 +282,7 @@ class Shell:
         caller = inspect.stack()[1].function
 
         # Add shell's path to path for validation
-        if path == "..":
+        if path == ".." and caller == "cd":
             return True
         elif path[1] != ":":
             path = self.path + path

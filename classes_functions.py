@@ -1,4 +1,4 @@
-import re
+import re, inspect
 
 OKBLUE = '\033[94m'
 DEFAULT = '\033[0m'
@@ -240,12 +240,7 @@ def dir(arg:list) -> None:
             while actual_folder != None:
                 folders.append(actual_folder.data)
                 actual_folder = actual_folder.next
-       
-                    
-                    
-                    
-                    
-                       
+   
     else:
          Logs.append(Log("dir " + arg[0]  ,"dir","unidad no encontrada"))
          print("unidad no encontrada")

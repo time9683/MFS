@@ -1,4 +1,4 @@
-import re,json,inspect
+import re, inspect
 
 OKBLUE = '\033[94m'
 DEFAULT = '\033[0m'
@@ -25,7 +25,6 @@ class Logs:
             current = Logs.head
             Logs.head = Node(log)
             Logs.head.next = current
-        Logs.save_logs()
             
     @staticmethod
     def print_logs():
@@ -34,37 +33,6 @@ class Logs:
             print(current.data)
             current = current.next
             
-    @staticmethod
-    def clear_logs():
-        Logs.head = None
-        # clear json file
-        with open("logs.json", "w") as file:
-            file.write("")
-        
-        
-    @staticmethod
-    def save_logs():
-        # save logs in json file
-        current = Logs.head
-        logs = []
-        while current != None:
-            logs.append(current.data.__dict__)
-            current = current.next
-        with open("logs.json", "w") as file:
-            json.dump(logs, file)
-            
-    @staticmethod
-    def load_logs():
-        # load logs from json file
-        
-        with open("logs.json", "r") as file:
-            try:
-                logs = json.load(file)
-            except json.decoder.JSONDecodeError:
-                return
-            for log in logs:
-                Logs.append(Log(log["promp"], log["command"], log["result"]))
-        
             
 class Log:
     def __init__(self,promp,command,result) -> None:
@@ -536,3 +504,6 @@ def print_childrens(childrens:list):
     Logs.append(Log("dir unidad:/path" ,"dir",text))
     print(text + DEFAULT, end="")
     
+    
+def log():
+    Logs.print_logs()

@@ -1,5 +1,7 @@
 from classes_functions import *
 import json
+import re
+
 class Shell:
     """Class that represents the shell of the system.
     It contains the main loop of the program, as well as the commands and
@@ -120,7 +122,7 @@ class Shell:
                 También admite:
                  * Path relativo - /a/b/...
                  """,
-                 self.mkdir)
+                 self.rmdir)
         
         Command("type",
                 "any",
@@ -142,15 +144,7 @@ class Shell:
                 "log - muestra el log del sistema",
                 """log 
                 Muestra el log del sistema""",
-                Logs.print_logs)
-        
-        Command("clear-log",
-                "any",
-                "clear-log - limpia el log del sistema",
-                "clear-log limpia el log del sistema y elimina su copia del sistema",
-                Logs.clear_logs
-                )
-
+                log)
 
     def loop(self):
         prompt = ""
@@ -220,7 +214,6 @@ class Shell:
 # load the data from the json file and create the objects in memory
 # Henry: No entiendo nada de esto, pero yo confío
     def load(self):
-        Logs.load_logs()
         with open("data.json","r") as file:
             data = json.load(file)
         for unit in data["Units"]:
@@ -270,18 +263,66 @@ class Shell:
                 self.path = self.path + path
 
     def mkdir(self, args: list):
-        # TODO
-        ...
+        # Validate input 
+        # Define the regular expression pattern
+        pattern = r'^mkdir\s+(\w+|\S+\s*\S+)$'
+
+        # Use regex to match the argument string against the pattern
+        match = re.match(pattern, args)
+
+        if match:
+            # The argument string is valid
+            return True
+        else:
+            # The argument string is not valid
+            return False
+
+
 
     def rmdir(self, args: list):
-        # TODO
-        ...
+        # Define the regular expression pattern
+        pattern = r'^rmdir\s+/s\s+/q\s+([^\s]+)$'
+
+        # Use regex to match the argument string against the pattern
+        match = re.match(pattern, args)
+
+        if match:
+            # The argument string is valid
+            return True
+        else:
+            # The argument string is not valid
+            return False
+
 
     def type(self, args:list):
-        # TODO
-        ...
+        # Validate input 
+        # Define the regular expression pattern
+        pattern = r'^type\s+([^\s]+\.txt|.*\/[^\s]+\.txt)\s+"([^"]+)"$'
+
+        # Use regex to match the argument string against the pattern
+        match = re.match(pattern, args)
+
+        if match:
+            # The argument string is valid
+            return True
+        else:
+            # The argument string is not valid
+            return False
 
     def ls(self, args:list):
+        # Define the regular expression pattern
+        pattern = r'^ls\s+([^\s]+)$'
+
+        # Use regex to match the argument string against the pattern
+        match = re.match(pattern, args)
+
+        if match:
+            # The argument string is valid
+            return True
+        else:
+        # The argument string is not valid
+            return False
+        
         # TODO
         ...
         # List every folder in current path (help TODO luis)

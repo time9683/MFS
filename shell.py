@@ -333,13 +333,11 @@ class Shell:
         ...
 
     def ls(self, args:list=None):
-        # TODO
         if args == None:
              dir([self.path])
         else:
             dir([self.path]+args)
-       
-        # List every folder in current path (help TODO luis)
+
 
     def valid_path(self, path:str) -> bool:
         # Get caller function

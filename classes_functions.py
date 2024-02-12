@@ -253,25 +253,38 @@ def dir(arg:list) -> None:
                 folders.append(currentFolder.data)
                 currentFolder = currentFolder.next  
         else:
-            names = path.split("/")
-            actual_folder = Unit.units[unidad].childrens.head
-            Numbers_or_correct_folders = 0
-            for i in range(len(names)):
-                while actual_folder != None:
-                    if actual_folder.data.name == names[i]:
-                        actual_folder = actual_folder.data.childrens.head
-                        Numbers_or_correct_folders += 1
-                    break
-                    
+            
+            names = path.split("/")[1:]
 
-            if actual_folder == None or Numbers_or_correct_folders != len(names) -1:
+            current_folder = Unit.units[unidad].childrens.head
+            Numbers_or_correct_folders = 0
+            for name in names:
+            
+                while  current_folder != None and current_folder.data.name != name:
+                        current_folder = current_folder.next
+                
+                if(current_folder == None):
+                    break
+                
+                
+                
+                if  Numbers_or_correct_folders < len(names)-1:
+        
+                    current_folder = current_folder.data.childrens.head
+                    Numbers_or_correct_folders += 1
+                    
+                    
+                    
+            
+            if current_folder == None:
                 print("directorio no encontrado")
                 Logs.append(Log("dir " + unidad + ":" + path  ,"dir","directorio no encontrado"))
                 return
             
-            while actual_folder != None:
-                folders.append(actual_folder.data)
-                actual_folder = actual_folder.next
+            current_folder = current_folder.data.childrens.head
+            while current_folder != None:
+                folders.append(current_folder.data)
+                current_folder = current_folder.next
    
     else:
          Logs.append(Log("dir " + arg[0]  ,"dir","unidad no encontrada"))
@@ -292,7 +305,7 @@ def dir(arg:list) -> None:
             files = size_sort(files, arg[-1])
 
             # Printing results
-            print_childrens(folders)
+            print_childrens(folders,True)
 
         # Date sorting
         elif len(arg) ==2 or len(arg) == 3 and arg[-1] in ["asc", "desc"]:
@@ -311,7 +324,7 @@ def dir(arg:list) -> None:
                         return
 
                     # print folders with modification date
-                    print_childrens(folders)
+                    print_childrens(folders,True)
 
                 case "-creation":
                     # order arg validation
@@ -326,7 +339,7 @@ def dir(arg:list) -> None:
                         return
 
                     # Print result with creation date
-                    print_childrens(folders)
+                    print_childrens(folders,True)
                 case _:
                     print("invalid arguments")
 
@@ -363,7 +376,7 @@ def dir(arg:list) -> None:
                     files = range_sort(files, min, max, "desc")
 
                 # Printing results
-                print_childrens(folders)
+                print_childrens(folders,True)
 
             elif re.match("^\d+(?:>|<|=)$",arg[2]):
                 criteria = arg[2][-1]
@@ -378,7 +391,7 @@ def dir(arg:list) -> None:
                     files = value_sort(files, value, criteria, "desc")
 
                 # Printing results
-                print_childrens(folders)
+                print_childrens(folders,True)
 
             else:
                 print("invalid arguments")
@@ -526,13 +539,29 @@ def heapify(arr: list, n: int, i: int):
         
         
         
-def print_childrens(childrens:list):
+def print_childrens(childrens:list,advanced:bool = False) -> None:
     text =  '' 
+    if advanced:
+        text += "Nombre  Creacion  Modificacion  Tamaño\n"
+        
+    
+    
     for child in childrens:
         if isinstance(child, Folder):
-            text += OKBLUE + child.name + "/" + "\n"
+            if advanced:
+                text += OKBLUE + child.name + "/" + DEFAULT + " " + child.creationDate + " "  + child.modifyDate  + " " + str(child.size)   + "\n"
+            else:
+                text += OKBLUE + child.name + "/" + "\n"
         else:
-            text += DEFAULT + child.name + "." + child.extension + "\n"
+            if advanced:
+                text += DEFAULT + child.name + "." + child.extension + " " + child.creationDate + " "  + child.modifyDate  + " " + str(child.size) + "\n"
+            else:
+                text += DEFAULT + child.name + "." + child.extension + "\n"
     Logs.append(Log("dir unidad:/path" ,"dir",text))
     print(text + DEFAULT, end="")
+    
+def join(path,arg2):
+     path_current = path.lstrip("/").rstrip("/")
+     path_add = arg2.lstrip("/").rstrip("/")
+     return path_current + "/" + path_add
     

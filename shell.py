@@ -276,7 +276,11 @@ class Shell:
                 self.path = path
             # Check for relative path
             elif path == "..":
-                self.path = "C:/"
+                if self.path != "C:/" and self.path != "C:":
+                    self.path = "/".join(self.path.split("/")[:-1])
+                else:
+                    print("ya estas en la raiz")
+                    Logs.append(Log("cd " + args[0]  ,"cd","ya estas en la raiz"))
             elif self.valid_path( join(self.path, path)):   
                 self.path = join(self.path, path)
 

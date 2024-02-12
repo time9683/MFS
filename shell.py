@@ -1,5 +1,5 @@
 from classes_functions import *
-import json
+import json,datetime
 class Shell:
     """Class that represents the shell of the system.
     It contains the main loop of the program, as well as the commands and
@@ -150,6 +150,13 @@ class Shell:
                 "clear-log limpia el log del sistema y elimina su copia del sistema",
                 Logs.clear_logs
                 )
+        Command("ls",
+                "any",
+                "ls - lista los archivos y carpetas en la ubicación dada",
+                """ls [unidad:ubicación]
+
+                Lista los archivos y carpetas en la unidad y ubicación dadas""",
+                self.ls)
 
 
     def loop(self):
@@ -256,22 +263,66 @@ class Shell:
 # Functions that interact directly with the shell and its files
     def cd(self, args: list):
         # Validate args
-        if len(args) == 1 and self.valid_path(args[0]):
-            path = args[0]
+        if len(args) == 1:
+            path = args[0].lstrip("/").rstrip("/")
             # Check for paths and change shell current path
             # Check for absolute path
-            if path[1] == ":":
+            if  ":" in path and self.valid_path(path):
                 self.path = path
             # Check for relative path
             elif path == "..":
                 self.path = "C:/"
-            else:
-                path = path.lstrip("/")
-                self.path = self.path + path
+            elif self.valid_path( join(self.path, path)):   
+                self.path = join(self.path, path)
 
     def mkdir(self, args: list):
-        # TODO
-        ...
+        if len(args) == 1:
+            path = args[0]
+            if not ":" in path:
+                path = self.path.rstrip("/") + "/" + path.lstrip("/").rstrip("/")
+            name = path.split("/")[-1]
+            path = path.replace(name,"")
+            
+            
+
+            if self.valid_path(path.rstrip("/")):
+                                
+                current_folder = Unit.units[path.split(":")[0]].childrens.head
+                
+                
+                if path == "C:/":
+                    date = datetime.datetime.now().strftime("%Y-%m-%d")
+                    Unit.units[path.split(":")[0]].append(Folder(name,date,date))
+                    return
+                
+                
+                corrects = 0
+                corrects_len = len(path.split("/")[1:-1]) -1
+                
+                for names in path.split("/")[1:-1]:
+                
+
+                    while current_folder.data.name != names:
+                        current_folder = current_folder.next
+                    if  corrects < corrects_len:
+                        current_folder = current_folder.data.childrens.head
+                        corrects += 1
+                    
+                
+                
+                date = datetime.datetime.now().strftime("%Y-%m-%d")
+                fol = Folder(name,date,date)
+                current_folder.data.append(fol)
+            else:
+                print("path invalido")
+                Logs.append(Log("mkdir " + args[0]  ,"mkdir","path invalido"))
+            
+                
+            
+            
+
+
+        
 
     def rmdir(self, args: list):
         # TODO
@@ -281,9 +332,13 @@ class Shell:
         # TODO
         ...
 
-    def ls(self, args:list):
+    def ls(self, args:list=None):
         # TODO
-        ...
+        if args == None:
+             dir([self.path])
+        else:
+            dir([self.path]+args)
+       
         # List every folder in current path (help TODO luis)
 
     def valid_path(self, path:str) -> bool:
@@ -309,18 +364,27 @@ class Shell:
         if path == "/":
             return True 
         else:
-            names = path.split("/")
-            actual_folder = Unit.units[unidad].childrens.head
+            names = path.split("/")[1:]
+
+            current_folder = Unit.units[unidad].childrens.head
             Numbers_or_correct_folders = 0
-            for i in range(len(names)):
-                while actual_folder != None:
-                    if actual_folder.data.name == names[i]:
-                        actual_folder = actual_folder.data.childrens.head
-                        Numbers_or_correct_folders += 1
+            for name in names:
+            
+                while  current_folder != None and current_folder.data.name != name:
+                        current_folder = current_folder.next
+                
+                if(current_folder == None):
                     break
+                
+                
+                
+                if  Numbers_or_correct_folders < len(names)-1:
+        
+                    current_folder = current_folder.data.childrens.head
+                    Numbers_or_correct_folders += 1
                     
 
-            if actual_folder == None or Numbers_or_correct_folders != len(names) -1:
+            if current_folder == None:
                 print("directorio no encontrado")
                 Logs.append(Log(caller + " " + path  , caller,"directorio no encontrado"))
                 return False

@@ -1,5 +1,6 @@
 from classes_functions import *
-import json,datetime
+import json,datetime,readline
+from rlcompleter import Completer
 class Shell:
     """Class that represents the shell of the system.
     It contains the main loop of the program, as well as the commands and
@@ -160,6 +161,10 @@ class Shell:
 
 
     def loop(self):
+        
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(completation)
+        # make complete with commands
         prompt = ""
         print(
             "Bienvenido a la MFShell",
@@ -389,3 +394,9 @@ class Shell:
             else:
                 return True
             
+def completation(text,state):
+    options = [i for i in Command.commands if i.startswith(text)]
+    if state < len(options):
+        return options[state]
+    else:
+        return None

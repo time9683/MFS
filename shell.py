@@ -142,7 +142,15 @@ class Shell:
                 "log - muestra el log del sistema",
                 """log 
                 Muestra el log del sistema""",
-                log)
+                Logs.print_logs)
+        
+        Command("clear-log",
+                "any",
+                "clear-log - limpia el log del sistema",
+                "clear-log limpia el log del sistema y elimina su copia del sistema",
+                Logs.clear_logs
+                )
+
 
     def loop(self):
         prompt = ""
@@ -212,6 +220,7 @@ class Shell:
 # load the data from the json file and create the objects in memory
 # Henry: No entiendo nada de esto, pero yo confío
     def load(self):
+        Logs.load_logs()
         with open("data.json","r") as file:
             data = json.load(file)
         for unit in data["Units"]:

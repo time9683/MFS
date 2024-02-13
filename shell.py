@@ -12,6 +12,8 @@ class Shell:
     def __init__(self):
         self.currentUser: User = None
         self.path: str = "C:/"
+        self.backup_file = ""
+        self.disables = []
         
         # List of commands in the system
         Command(
@@ -121,7 +123,7 @@ class Shell:
                 También admite:
                  * Path relativo - /a/b/...
                  """,
-                 self.mkdir)
+                 self.rmdir)
         
         Command("type",
                 "any",
@@ -197,7 +199,7 @@ class Shell:
                 continue
 
             # Command role validation and execution
-            if prompt[0] in Command.commands:
+            if prompt[0] in Command.commands and prompt[0] not in self.disables:
                 command = Command.commands[prompt[0]]
 
                 # Validate role
@@ -233,7 +235,14 @@ class Shell:
 # Henry: No entiendo nada de esto, pero yo confío
     def load(self):
         Logs.load_logs()
-        with open("data.json","r") as file:
+        config_data = {}
+        with open("config.json","r") as configs:
+            config_data = json.load(configs)
+            self.backup_file = config_data["backup"]
+            self.disables = config_data["disables"]
+        
+        # TODO change this to the correct file
+        with open(self.backup_file,"r") as file:
             data = json.load(file)
         for unit in data["Units"]:
             unidad = Unit(unit["name"],unit["totalSize"],unit["type"])
@@ -285,29 +294,39 @@ class Shell:
                 self.path = join(self.path, path)
 
     def mkdir(self, args: list):
+        #  validate the arguments
         if len(args) == 1:
+            #  get the path
             path = args[0]
+            #  validate if the path is absolute or relative
             if not ":" in path:
-                path = self.path.rstrip("/") + "/" + path.lstrip("/").rstrip("/")
+                #  join the relative path with the current path
+                path = join(self.path,path)
+            #  get the name of the folder
             name = path.split("/")[-1]
+            #  get the path without the name
             path = path.replace(name,"")
             
             
-
+            #  validate if the path is valid
             if self.valid_path(path.rstrip("/")):
-                                
+                #  get the first folder of the unit
                 current_folder = Unit.units[path.split(":")[0]].childrens.head
                 
-                
+                #  validate if the path is the root    
                 if path == "C:/" or path == "C:":
+                    # get a date
                     date = datetime.datetime.now().strftime("%Y-%m-%d")
+                    #  append the folder to the unit
                     Unit.units[path.split(":")[0]].append(Folder(name,date,date))
                     return
                 
-                
+                #  counter for the correct folders    
                 corrects = 0
+                #  max correct folders
                 corrects_len = len(path.split("/")[1:-1]) -1
                 
+                #  iterate over the folders to get the correct folder
                 for names in path.split("/")[1:-1]:
                 
 
@@ -318,7 +337,7 @@ class Shell:
                         corrects += 1
                     
                 
-                
+                #  create the folder
                 date = datetime.datetime.now().strftime("%Y-%m-%d")
                 fol = Folder(name,date,date)
                 current_folder.data.append(fol)
@@ -334,49 +353,134 @@ class Shell:
         
 
     def rmdir(self, args: list):
-        # TODO
-        ...
+        #  validate the arguments
+        if len(args) == 1:
+            #  get the path
+            path = args[0]
+            #  validate if the path is absolute or relative
+            if not ":" in path:
+                #  join the relative path with the current path
+                path = join(self.path,path)
+            #  get the name of the folder
+            name = path.split("/")[-1]
+            #  get the path without the name
+            path = path.replace(name,"").rstrip("/")
+            
+            #  validate if a path is the root
+            if path == "C:/" or path == "C:":
+                # get the unit
+                current_unit = Unit.units[path.split(":")[0]]
+                #  remove the folder from the unit
+                current_unit.remove(name)
+                return
+            
+            
+            #  validate if the path is valid
+            if self.valid_path(path):
+                #  get the first folder of the unit
+                current_folder = Unit.units[path.split(":")[0]].childrens.head
+                #  counter for the correct folders
+                corrects = 0
+                #  max correct folders
+                corrects_len = len(path.split("/")[1:-1]) -1
+                
+                #  iterate over the folders to get the correct folder
+                for names in path.split("/")[1:]:
+                    while current_folder.data.name != names:
+                        current_folder = current_folder.next
+                    if  corrects < corrects_len:
+                        current_folder = current_folder.data.childrens.head
+                        corrects += 1
+                
+
+                # TODO add validation to check if is a folder
+                
+                 
+                #  remove the folder from the folder
+                current_folder.data.remove(name)                
+        else:
+            print("faltan argumentos")
+            Logs.append(Log("rmdir " + " ".join(args)  ,"rmdir","faltan argumentos"))
+        
 
     def type(self, args:list):
+        # validate the arguments
         if(len(args) < 2):
             print("faltan argumentos")
             Logs.append(Log("type " + " ".join(args)  ,"type","faltan argumentos"))
             return
-        
+        #  get the path and the text
         path = args[0]
         text = " ".join(args[1:])
         
+        #  validate if the path is absolute or relative
         if not ":" in path:
             path = join(self.path,path)
         
+        # get the name of the file
         name = path.split("/")[-1]
+        
+        # validate if a name have a extension
+        if  not "." in name:
+            print("el archivo debe tener una extension")
+            Logs.append(Log("type " + args[0]  ,"type","el archivo debe tener una extension"))
+            return 
+        
+
         path = path.replace(name,"").rstrip("/")
+        name,extension = name.split(".")
+        
+        # only txt files are allowed
+        if extension != "txt":
+            print("solo se permiten archivos txt")
+            Logs.append(Log("type " + args[0]  ,"type","solo se permiten archivos txt"))
+            return
+        
         if self.valid_path(path):
             
+            # validate if file already exists
+            if self.valid_path(path + "/" + name):
+                print("el archivo ya existe")
+                Logs.append(Log("type " + args[0]  ,"type","el archivo ya existe"))
+                return
+            
+            
+            
+            # if the path is the root ,dont create the file
             if path == "C:/" or path == "C:":
-                    date = datetime.datetime.now().strftime("%Y-%m-%d")
-                    Unit.units[path.split(":")[0]].append(File(name,len(text),date,date,"txt",text))
+                    print("no se puede crear un archivo en la raiz")
+                    Logs.append(Log("type " + args[0]  ,"type","no se puede crear un archivo en la raiz"))
                     return
+                    # date = datetime.datetime.now().strftime("%Y-%m-%d")
+                    # Unit.units[path.split(":")[0]].append(File(name,len(text),date,date,"txt",text))
+                    # return
             
-            
+            #  get the first folder of unit
             current_folder = Unit.units[path.split(":")[0]].childrens.head
+            #counter for the correct folders
             corrects = 0
+            # max correct folders
             corrects_len = len(path.split("/")[1:]) -1
             
+            #  iterate over the folders to get the correct folder
             for names in path.split("/")[1:]:
                 while current_folder.data.name != names:
                     current_folder = current_folder.next
                 if  corrects < corrects_len:
                     current_folder = current_folder.data.childrens.head
                     corrects += 1
+            #  create the file
             date = datetime.datetime.now().strftime("%Y-%m-%d")
-            fil = File(name,len(text),date,date,"txt",text)
+            fil = File(name,len(text),date,date,extension,text)
+            #append the file to the folder
             current_folder.data.append(fil)
 
     def ls(self, args:list=None):
+        # if the args are none, list the current path
         if args == None:
              dir([self.path])
         else:
+        # list the path given
             dir([self.path]+args)
 
 
@@ -424,11 +528,40 @@ class Shell:
                     
 
             if current_folder == None:
-                print("directorio no encontrado")
                 Logs.append(Log(caller + " " + path  , caller,"directorio no encontrado"))
                 return False
             else:
                 return True
+    def backup(self):
+        # data object to save
+        data = {"Units":[],"Users":[]}
+        
+        for unit in Unit.units:
+            # get the unit
+            unit_var = Unit.units[unit]
+            #  get the folders and files
+            unit_child = unit_var.childrens.head
+            root = list()
+            
+            while unit_child != None:
+                #  get the files and folders
+                fil,fol = unit_child.data.to_list()
+                # create the root folder
+                root_fol = {"name":unit_child.data.name,"folders":fol,"files":fil,"creationDate":unit_child.data.creationDate,"modifyDate":unit_child.data.modifyDate}
+                root.append(root_fol)
+                #  go to the next folder
+                unit_child = unit_child.next
+            # create the unit
+            root_unit = {"name":unit_var.name,"folders":root,"type":unit_var.type,"totalSize":unit_var.totalSize}
+            #  append the unit to the data
+            data["Units"].append(root_unit)
+        #  get the users
+        for user in User.users:
+            data["Users"].append(user.to_dict())
+        #  save the data
+        with open(self.backup_file,"w") as file:
+            json.dump(data,file)
+        Logs.append(Log("backup"  ,"backup","backup realizado"))
             
 def completation(text,state):
     options = [i for i in Command.commands if i.startswith(text)]

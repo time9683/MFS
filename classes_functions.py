@@ -247,7 +247,7 @@ def dir(arg:list) -> None:
     
     # Listing files and folders
     if unidad in Unit.units:
-        if path == "/":
+        if path == "/" or path == "":
             currentFolder = Unit.units[unidad].childrens.head
             while currentFolder != None:
                 folders.append(currentFolder.data)

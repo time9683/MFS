@@ -119,6 +119,35 @@ class Folder:
                 current = current.next
             current.next = Node(Element)
             self.size += Element.size
+    
+    def remove(self, name):
+        current = self.childrens.head
+        previous = None
+        while current != None:
+            if current.data.name == name:
+                if previous == None:
+                    self.childrens.head = current.next
+                else:
+                    previous.next = current.next
+                self.size -= current.data.size
+                return
+            previous = current
+            current = current.next
+        print("archivo no encontrado")
+    
+    def to_list(self):
+        current = self.childrens.head
+        files = []
+        folders = []
+        while current != None:
+            if isinstance(current.data, Folder):
+                files_rec,folder_rec = current.data.to_list()
+                folders.append({"name":current.data.name,"creationDate":current.data.creationDate,"modifyDate":current.data.modifyDate,"files":files_rec,"folders":folder_rec})
+            else:
+                files.append({"name":current.data.name,"size":current.data.size,"creationDate":current.data.creationDate,"modifyDate":current.data.modifyDate,"extension":current.data.extension,"content":current.data.content})
+            current = current.next
+        return files,folders
+
 
         
         
@@ -152,6 +181,21 @@ class Unit:
                 current = current.next
             current.next = Node(Element)
             self.freeSize -= Element.size
+            
+    def remove(self, name):
+        current = self.childrens.head
+        previous = None
+        while current != None:
+            if current.data.name == name:
+                if previous == None:
+                    self.childrens.head = current.next
+                else:
+                    previous.next = current.next
+                self.freeSize += current.data.size
+                return
+            previous = current
+            current = current.next
+        print("archivo no encontrado")
 
 
 class Command:

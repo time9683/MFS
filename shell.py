@@ -241,7 +241,6 @@ class Shell:
             self.backup_file = config_data["backup"]
             self.disables = config_data["disables"]
         
-        # TODO change this to the correct file
         with open(self.backup_file,"r") as file:
             data = json.load(file)
         for unit in data["Units"]:

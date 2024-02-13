@@ -299,7 +299,7 @@ class Shell:
                 current_folder = Unit.units[path.split(":")[0]].childrens.head
                 
                 
-                if path == "C:/":
+                if path == "C:/" or path == "C:":
                     date = datetime.datetime.now().strftime("%Y-%m-%d")
                     Unit.units[path.split(":")[0]].append(Folder(name,date,date))
                     return
@@ -338,8 +338,40 @@ class Shell:
         ...
 
     def type(self, args:list):
-        # TODO
-        ...
+        if(len(args) < 2):
+            print("faltan argumentos")
+            Logs.append(Log("type " + " ".join(args)  ,"type","faltan argumentos"))
+            return
+        
+        path = args[0]
+        text = " ".join(args[1:])
+        
+        if not ":" in path:
+            path = join(self.path,path)
+        
+        name = path.split("/")[-1]
+        path = path.replace(name,"").rstrip("/")
+        if self.valid_path(path):
+            
+            if path == "C:/" or path == "C:":
+                    date = datetime.datetime.now().strftime("%Y-%m-%d")
+                    Unit.units[path.split(":")[0]].append(File(name,len(text),date,date,"txt",text))
+                    return
+            
+            
+            current_folder = Unit.units[path.split(":")[0]].childrens.head
+            corrects = 0
+            corrects_len = len(path.split("/")[1:]) -1
+            
+            for names in path.split("/")[1:]:
+                while current_folder.data.name != names:
+                    current_folder = current_folder.next
+                if  corrects < corrects_len:
+                    current_folder = current_folder.data.childrens.head
+                    corrects += 1
+            date = datetime.datetime.now().strftime("%Y-%m-%d")
+            fil = File(name,len(text),date,date,"txt",text)
+            current_folder.data.append(fil)
 
     def ls(self, args:list=None):
         if args == None:

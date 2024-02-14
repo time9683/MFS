@@ -646,6 +646,6 @@ def print_childrens(childrens: list, advanced: bool = False) -> None:
 
 
 def join(path, arg2):
-    path_current = path.lstrip("/").rstrip("/")
-    path_add = arg2.lstrip("/").rstrip("/")
+    path_current = path.strip("/")
+    path_add = arg2.strip("/")
     return path_current + "/" + path_add

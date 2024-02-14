@@ -415,9 +415,6 @@ class Shell:
             else:
                 print("path invalido")
                 Logs.append(Log("mkdir " + args[0], "mkdir", "path invalido"))
-        else:
-            print("argumentos inválidos")
-            Logs.append(Log("mkdir " + args[0], "mkdir", "argumentos inválidos"))
 
     def rmdir(self, args: list):
         #  validate the arguments

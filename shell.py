@@ -304,11 +304,21 @@ class Shell:
             #  get the name of the folder
             name = path.split("/")[-1]
             #  get the path without the name
-            path = path.replace(name,"")
+            path = '/'.join(path.split("/")[:-1]) + '/'
             
             
             #  validate if the path is valid
             if self.valid_path(path.rstrip("/")):
+                
+                # validate if file already exists
+                if self.valid_path(join(path,name)):
+                    print("el directorio ya existe")
+                    Logs.append(Log("mkdir " + args[0]  ,"mkdir","el directorio ya existe"))
+                    return
+                
+                
+                
+                
                 #  get the first folder of the unit
                 current_folder = Unit.units[path.split(":")[0]].childrens.head
                 
@@ -318,6 +328,8 @@ class Shell:
                     date = datetime.datetime.now().strftime("%Y-%m-%d")
                     #  append the folder to the unit
                     Unit.units[path.split(":")[0]].append(Folder(name,date,date))
+                    #  save the current state of the system
+                    self.backup()
                     return
                 
                 #  counter for the correct folders    
@@ -340,6 +352,8 @@ class Shell:
                 date = datetime.datetime.now().strftime("%Y-%m-%d")
                 fol = Folder(name,date,date)
                 current_folder.data.append(fol)
+                #  save the current state of the system
+                self.backup()
             else:
                 print("path invalido")
                 Logs.append(Log("mkdir " + args[0]  ,"mkdir","path invalido"))
@@ -363,7 +377,7 @@ class Shell:
             #  get the name of the folder
             name = path.split("/")[-1]
             #  get the path without the name
-            path = path.replace(name,"").rstrip("/")
+            path = '/'.join(path.split("/")[:-1])
             
             #  validate if a path is the root
             if path == "C:/" or path == "C:":
@@ -371,6 +385,8 @@ class Shell:
                 current_unit = Unit.units[path.split(":")[0]]
                 #  remove the folder from the unit
                 current_unit.remove(name)
+                # save the current state of the system
+                self.backup()  
                 return
             
             
@@ -391,12 +407,26 @@ class Shell:
                         current_folder = current_folder.data.childrens.head
                         corrects += 1
                 
-
-                # TODO add validation to check if is a folder
+                # get the child of the folder
+                child = current_folder.data.childrens.head
+                while child != None and child.data.name != name:
+                    child = child.next
+                if child == None:
+                    print("directorio no encontrado o es un archivo")
+                    Logs.append(Log("rmdir " + args[0]  ,"rmdir","directorio no encontrado o es un archivo"))
+                    return
                 
+                #  validate if the child is a folder
+                if not isinstance(child.data,Folder):
+                    print("no es un directorio")
+                    Logs.append(Log("rmdir " + args[0]  ,"rmdir","no es un directorio"))
+                    return
+                    
                  
-                #  remove the folder from the folder
-                current_folder.data.remove(name)                
+                #remove the folder from the folder
+                current_folder.data.remove(name)    
+                # save the current state of the system
+                self.backup()         
         else:
             print("faltan argumentos")
             Logs.append(Log("rmdir " + " ".join(args)  ,"rmdir","faltan argumentos"))
@@ -425,8 +455,7 @@ class Shell:
             Logs.append(Log("type " + args[0]  ,"type","el archivo debe tener una extension"))
             return 
         
-
-        path = path.replace(name,"").rstrip("/")
+        path = '/'.join(path.split("/")[:-1])
         name,extension = name.split(".")
         
         # only txt files are allowed
@@ -473,6 +502,8 @@ class Shell:
             fil = File(name,len(text),date,date,extension,text)
             #append the file to the folder
             current_folder.data.append(fil)
+            #  save the current state of the system
+            self.backup()
 
     def ls(self, args:list=None):
         # if the args are none, list the current path
@@ -556,11 +587,10 @@ class Shell:
             data["Units"].append(root_unit)
         #  get the users
         for user in User.users:
-            data["Users"].append(user.to_dict())
+            data["Users"].append(User.users[user].__dict__)
         #  save the data
         with open(self.backup_file,"w") as file:
             json.dump(data,file)
-        Logs.append(Log("backup"  ,"backup","backup realizado"))
             
 def completation(text,state):
     options = [i for i in Command.commands if i.startswith(text)]

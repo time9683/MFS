@@ -236,13 +236,27 @@ class Shell:
     def load(self):
         Logs.load_logs()
         config_data = {}
-        with open("config.json","r") as configs:
-            config_data = json.load(configs)
-            self.backup_file = config_data["backup"]
-            self.disables = config_data["disables"]
+        try:
+            with open("config.json","r") as configs:
+                config_data = json.load(configs)
+                self.backup_file = config_data["backup"]
+                self.disables = config_data["disables"]
+        except FileNotFoundError:
+            print(RED,"no se encontro el archivo de configuracion",DEFAULT,"\nCree un archivo de configuracion con el nombre config.json y las siguientes llaves: backup, disables")
+            exit(1)
         
-        with open(self.backup_file,"r") as file:
-            data = json.load(file)
+        try:
+            with open(self.backup_file,"r") as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            print(RED+"no se encontro el archivo de backup",DEFAULT,"\nse iniciara con un sistema vacio y se creara el archivo de backup")
+            unit = Unit("C",500,"ssd")
+            with open(self.backup_file, "w") as file:
+                json.dump({"Units":[{"name":"C","folders":[],"type":"ssd","totalSize":500}],"Users":[]},file)
+            
+            
+            return
+            
         for unit in data["Units"]:
             unidad = Unit(unit["name"],unit["totalSize"],unit["type"])
             for folder in unit["folders"]:

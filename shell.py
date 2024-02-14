@@ -1,6 +1,8 @@
 from classes_functions import *
-import json,datetime,readline
-from rlcompleter import Completer
+import json,datetime
+    
+
+
 class Shell:
     """Class that represents the shell of the system.
     It contains the main loop of the program, as well as the commands and
@@ -163,9 +165,13 @@ class Shell:
 
 
     def loop(self):
-        
-        readline.parse_and_bind("tab: complete")
-        readline.set_completer(completation)
+            
+        try:
+            import readline
+            readline.parse_and_bind("tab: complete")
+            readline.set_completer(completation)
+        except ImportError:
+            print("readline no esta dispobible en el sistema, no se podra usar el autocompletado")
         # make complete with commands
         prompt = ""
         print(

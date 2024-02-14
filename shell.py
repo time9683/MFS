@@ -112,12 +112,12 @@ class Shell:
             "mkdir",
             "any",
             "mkdir - crea un directorio",
-            """ mkdir[nombre]
+            """ mkdir [nombre]
 
                 Crea un directorio en el path actual, o de especificarse, en el path dado.
 
                 También admite:
-                 * Path relativo - /a/b/...
+                 * Path relativo - /a/b/nombre
                  """,
             self.mkdir,
         )
@@ -126,12 +126,12 @@ class Shell:
             "rmdir",
             "any",
             "rmdir - borra un directorio",
-            """ mkdir [path] [nombre]
+            """ rmdir [nombre]
 
                 Borra un directorio en el path actual, o de especificarse, en el path dado.
 
                 También admite:
-                 * Path relativo - /a/b/...
+                 * Path relativo - /a/b/nombre
                  """,
             self.rmdir,
         )
@@ -146,7 +146,7 @@ class Shell:
                 en el path actual.
                 
                 También admite:
-                 * Path relativo - /a/b/...""",
+                 * Path relativo - /a/b/nombre""",
             self.type,
         )
 
@@ -415,6 +415,9 @@ class Shell:
             else:
                 print("path invalido")
                 Logs.append(Log("mkdir " + args[0], "mkdir", "path invalido"))
+        else:
+            print("argumentos invalidos")
+            Logs.append(Log("mkdir " + args[0], "mkdir", "argumentos invalidos"))
 
     def rmdir(self, args: list):
         #  validate the arguments
@@ -483,8 +486,8 @@ class Shell:
                 # save the current state of the system
                 self.backup()
         else:
-            print("faltan argumentos")
-            Logs.append(Log("rmdir " + " ".join(args), "rmdir", "faltan argumentos"))
+            print("argumentos invalidos")
+            Logs.append(Log("rmdir " + " ".join(args), "rmdir", "argumentos invalidos"))
 
     def type(self, args: list):
         # validate the arguments

@@ -12,7 +12,7 @@ class Shell:
     * the shell not only executes the prompts, but validates the user's role."""
 
     def __init__(self):
-        self.currentUser: User = None
+        self.currentUser: User|None = None
         self.path: str = "C:/"
         self.backup_file = ""
         self.disables = []
@@ -572,7 +572,7 @@ class Shell:
             #  save the current state of the system
             self.backup()
 
-    def ls(self, args: list = None):
+    def ls(self, args: (list|None) = None):
         # if the args are none, list the current path
         if args == None:
             dir([self.path])

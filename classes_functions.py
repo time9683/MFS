@@ -3,18 +3,117 @@ import re, json, inspect
 OKBLUE = "\033[94m"
 DEFAULT = "\033[0m"
 RED = "\033[91m"
+    
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.right : Node|None = None
+        self.left :Node|None = None  
+        
+class NodeL:
+    def __init__(self, data):
+        self.data : None|File|Folder = data
+        self.next : NodeL | None = None
 
 
+class Tree:
+    def __init__(self) -> None:
+        self.root : Node|None = None
+        pass
+    
+    def append(self, Element):
+        root = self.root
+        if root == None:
+            self.root = Node(Element)
+        else:
+            self.appendsub(Element,root)
+
+    def appendsub(self, Element,parent):
+        if parent.data.size < Element.size:
+            if parent.right == None:
+                parent.right = Node(Element)
+            else:
+                self.appendsub(Element,parent.right)
+                
+        else:
+            if parent.left == None:
+                parent.left = Node(Element)
+            else:
+                self.appendsub(Element,parent.left)
+                
+    def remove(self, name):
+        self.root = self.removeNode(self.root, name)
+    
+    def removeNode(self, root:Node|None, name):
+        if root != None and root.data.name == name:
+            self.root = None
+            return
+        
+        if root == None:
+            return
+        
+        if root != None and root.left != None and name == root.left.data.name:
+            root.left = None
+            return 
+        if root != None and root.right != None and name == root.right.data.name:
+            root.right = None
+            return
+        
+        self.removeNode(root.left, name)
+        self.removeNode(root.right, name)
+    
+    def get_list(self):
+        root = self.root
+        lista = []
+        if root != None:
+            self.get_aux(root.left,lista)
+            lista.append(root.data)
+            self.get_aux(root.right,lista)
+        return lista
+    
+    def get_aux(self,root,lis):
+        if root != None:
+            self.get_aux(root.left,lis)
+            lis.append(root.data)
+            self.get_aux(root.right,lis)
+        
+    def search(self, data):
+        return self.searchNode(self.root, data)
+
+    def searchNode(self, root, data):
+        if root is None or root.data.name == data:
+            return root
+        result = None
+        if root.left != None and data  ==  root.left.data.name:
+            return root.left
+        if root.right and data == root.right.data.name:
+            return root.right
+
+        nodo =  self.searchNode(root.right, data)
+        if nodo != None:
+            result = nodo
+            
+        nodo = self.searchNode(root.left,data)
+        if nodo != None:
+            result = nodo
+        return result
+        
+        
+        
+    
+        
+        
+        
+            
 class linketList:
     def __init__(self) -> None:
-        self.head = None
-        pass
+        self.head : NodeL|None = None
+        pass  
+ 
+
+        
 
 
-class Node:
-    def __init__(self, data) -> None:
-        self.data = data
-        self.next = None
 
 
 class Logs:
@@ -23,10 +122,10 @@ class Logs:
     @staticmethod
     def append(log):
         if Logs.head == None:
-            Logs.head = Node(log)
+            Logs.head = NodeL(log)
         else:
             current = Logs.head
-            Logs.head = Node(log)
+            Logs.head = NodeL(log)
             Logs.head.next = current
         Logs.save_logs()
 
@@ -58,14 +157,19 @@ class Logs:
     @staticmethod
     def load_logs():
         # load logs from json file
-
-        with open("logs.json", "r") as file:
-            try:
-                logs = json.load(file)
-            except json.decoder.JSONDecodeError:
-                return
-            for log in logs:
-                Logs.append(Log(log["promp"], log["command"], log["result"]))
+        try:
+            with open("logs.json", "r") as file:
+                try:
+                    logs = json.load(file)
+                except json.decoder.JSONDecodeError:
+                    return
+                for log in logs:
+                    Logs.append(Log(log["promp"], log["command"], log["result"]))
+        except FileNotFoundError:
+            # make a logs file
+            with open("logs.json", "w") as file:
+                file.write("")
+            return None
 
 
 class Log:
@@ -99,66 +203,25 @@ class Folder:
         self.name = name
         self.creationDate = creationDate  # timestamp
         self.modifyDate = modifyDate  # timestamp
-        self.childrens = linketList()
+        self.childrens = Tree()
         self.size = 0  # bytes
 
     #  append function for files and folders
     # this function is used to add files and folders to the folder and add size to the folder
     def append(self, Element):
-        if self.childrens.head == None:
-            self.childrens.head = Node(Element)
-            self.size += Element.size
-        else:
-            current = self.childrens.head
-            while current.next != None:
-                current = current.next
-            current.next = Node(Element)
-            self.size += Element.size
+        self.childrens.append(Element)
+        self.size += Element.size
 
     def remove(self, name):
-        current = self.childrens.head
-        previous = None
-        while current != None:
-            if current.data.name == name:
-                if previous == None:
-                    self.childrens.head = current.next
-                else:
-                    previous.next = current.next
-                self.size -= current.data.size
-                return
-            previous = current
-            current = current.next
-        print("archivo no encontrado")
+        self.childrens.remove(name)
+        
 
     def to_list(self):
-        current = self.childrens.head
-        files = []
-        folders = []
-        while current != None:
-            if isinstance(current.data, Folder):
-                files_rec, folder_rec = current.data.to_list()
-                folders.append(
-                    {
-                        "name": current.data.name,
-                        "creationDate": current.data.creationDate,
-                        "modifyDate": current.data.modifyDate,
-                        "files": files_rec,
-                        "folders": folder_rec,
-                    }
-                )
-            else:
-                files.append(
-                    {
-                        "name": current.data.name,
-                        "size": current.data.size,
-                        "creationDate": current.data.creationDate,
-                        "modifyDate": current.data.modifyDate,
-                        "extension": current.data.extension,
-                        "content": current.data.content,
-                    }
-                )
-            current = current.next
-        return files, folders
+        return self.childrens.get_list()
+        ...
+        
+    def search(self, name):
+        return self.childrens.search(name)
 
 
 class Unit:
@@ -166,7 +229,7 @@ class Unit:
     metadata and content for indexing purposes."""
 
     # Dictionary that contains all the units in the system
-    units = dict()
+    units   = dict()
 
     def __init__(self, name, totalSize, type):
         self.name = name
@@ -181,20 +244,20 @@ class Unit:
 
     def append(self, Element):
         if self.childrens.head == None:
-            self.childrens.head = Node(Element)
+            self.childrens.head = NodeL(Element)
             self.freeSize -= Element.size
         else:
             current = self.childrens.head
             while current.next != None:
                 current = current.next
-            current.next = Node(Element)
+            current.next = NodeL(Element)
             self.freeSize -= Element.size
 
     def remove(self, name):
         current = self.childrens.head
         previous = None
         while current != None:
-            if current.data.name == name:
+            if current.data != None and  current.data.name == name:
                 if previous == None:
                     self.childrens.head = current.next
                 else:
@@ -264,7 +327,7 @@ def man(arg: list):
         print("argumentos incorrectos")
 
 
-def login() -> User:
+def login() -> User|None:
     name = input("user: ")
     password = input("password: ")
     if name in User.users:
@@ -317,18 +380,14 @@ def dir(arg: list) -> None:
             names = path.split("/")[1:]
 
             current_folder = Unit.units[unidad].childrens.head
-            Numbers_or_correct_folders = 0
-            for name in names:
-                while current_folder != None and current_folder.data.name != name:
-                    current_folder = current_folder.next
+            
+            
+            while current_folder != None and current_folder.data.name != names[0]:
+                current_folder = current_folder.next
 
-                if current_folder == None:
-                    break
-
-                if Numbers_or_correct_folders < len(names) - 1:
-                    current_folder = current_folder.data.childrens.head
-                    Numbers_or_correct_folders += 1
-
+            for  name in names[1:]:
+                    current_folder = current_folder.data.search(name)
+    
             if current_folder == None:
                 print("directorio no encontrado")
                 Logs.append(
@@ -336,10 +395,10 @@ def dir(arg: list) -> None:
                 )
                 return
 
-            current_folder = current_folder.data.childrens.head
-            while current_folder != None:
-                folders.append(current_folder.data)
-                current_folder = current_folder.next
+            folders = current_folder.data.to_list()
+            
+            
+            
 
     else:
         Logs.append(Log("dir " + arg[0], "dir", "unidad no encontrada"))

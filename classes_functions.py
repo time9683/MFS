@@ -3,80 +3,82 @@ import re, json, inspect
 OKBLUE = "\033[94m"
 DEFAULT = "\033[0m"
 RED = "\033[91m"
-    
+
+
 class Node:
     def __init__(self, data):
         self.data = data
-        self.right : Node|None = None
-        self.left :Node|None = None  
-        
+        self.right: Node | None = None
+        self.left: Node | None = None
+
+
 class NodeL:
     def __init__(self, data):
-        self.data : None|File|Folder = data
-        self.next : NodeL | None = None
+        self.data: None | File | Folder = data
+        self.next: NodeL | None = None
 
 
 class Tree:
     def __init__(self) -> None:
-        self.root : Node|None = None
+        self.root: Node | None = None
         pass
-    
+
     def append(self, Element):
         root = self.root
         if root == None:
             self.root = Node(Element)
         else:
-            self.appendsub(Element,root)
+            self.appendsub(Element, root)
 
-    def appendsub(self, Element,parent):
+    def appendsub(self, Element, parent):
         if parent.data.size < Element.size:
             if parent.right == None:
                 parent.right = Node(Element)
             else:
-                self.appendsub(Element,parent.right)
-                
+                self.appendsub(Element, parent.right)
+
         else:
             if parent.left == None:
                 parent.left = Node(Element)
             else:
-                self.appendsub(Element,parent.left)
-                
+                self.appendsub(Element, parent.left)
+
     def remove(self, name):
         self.root = self.removeNode(self.root, name)
-    
-    def removeNode(self, root:Node|None, name):
+
+    def removeNode(self, root: Node | None, name):
         if root != None and root.data.name == name:
             self.root = None
             return
-        
+
         if root == None:
             return
-        
+
         if root != None and root.left != None and name == root.left.data.name:
             root.left = None
-            return 
+            return
         if root != None and root.right != None and name == root.right.data.name:
             root.right = None
             return
-        
+
         self.removeNode(root.left, name)
         self.removeNode(root.right, name)
-    
+
     def get_list(self):
         root = self.root
         lista = []
         if root != None:
-            self.get_aux(root.left,lista)
+            self.get_aux(root.left, lista)
             lista.append(root.data)
-            self.get_aux(root.right,lista)
+            self.get_aux(root.right, lista)
         return lista
-    
-    def get_aux(self,root,lis):
+
+    def get_aux(self, root, lis):
         if root != None:
-            self.get_aux(root.left,lis)
+            self.get_aux(root.left, lis)
             lis.append(root.data)
-            self.get_aux(root.right,lis)
-        
+            self.get_aux(root.right, lis)
+
     def search(self, data):
         return self.searchNode(self.root, data)
 
@@ -84,36 +86,25 @@ class Tree:
         if root is None or root.data.name == data:
             return root
         result = None
-        if root.left != None and data  ==  root.left.data.name:
+        if root.left != None and data == root.left.data.name:
             return root.left
         if root.right and data == root.right.data.name:
             return root.right
 
-        nodo =  self.searchNode(root.right, data)
+        nodo = self.searchNode(root.right, data)
         if nodo != None:
             result = nodo
-            
-        nodo = self.searchNode(root.left,data)
+
+        nodo = self.searchNode(root.left, data)
         if nodo != None:
             result = nodo
         return result
-        
-        
-        
-    
-        
-        
-        
-            
+
+
 class linketList:
     def __init__(self) -> None:
-        self.head : NodeL|None = None
-        pass  
- 
-
-        
-
-
+        self.head: NodeL | None = None
+        pass
 
 
 class Logs:
@@ -214,12 +205,11 @@ class Folder:
 
     def remove(self, name):
         self.childrens.remove(name)
-        
 
     def to_list(self):
         return self.childrens.get_list()
         ...
-        
+
     def search(self, name):
         return self.childrens.search(name)
 
@@ -229,7 +219,7 @@ class Unit:
     metadata and content for indexing purposes."""
 
     # Dictionary that contains all the units in the system
-    units   = dict()
+    units = dict()
 
     def __init__(self, name, totalSize, type):
         self.name = name
@@ -257,7 +247,7 @@ class Unit:
         current = self.childrens.head
         previous = None
         while current != None:
-            if current.data != None and  current.data.name == name:
+            if current.data != None and current.data.name == name:
                 if previous == None:
                     self.childrens.head = current.next
                 else:
@@ -327,7 +317,7 @@ def man(arg: list):
         print("argumentos incorrectos")
 
 
-def login() -> User|None:
+def login() -> User | None:
     name = input("user: ")
     password = input("password: ")
     if name in User.users:
@@ -380,14 +370,13 @@ def dir(arg: list) -> None:
             names = path.split("/")[1:]
 
             current_folder = Unit.units[unidad].childrens.head
-            
-            
+
             while current_folder != None and current_folder.data.name != names[0]:
                 current_folder = current_folder.next
 
-            for  name in names[1:]:
-                    current_folder = current_folder.data.search(name)
-    
+            for name in names[1:]:
+                current_folder = current_folder.data.search(name)
+
             if current_folder == None:
                 print("directorio no encontrado")
                 Logs.append(
@@ -396,9 +385,6 @@ def dir(arg: list) -> None:
                 return
 
             folders = current_folder.data.to_list()
-            
-            
-            
 
     else:
         Logs.append(Log("dir " + arg[0], "dir", "unidad no encontrada"))

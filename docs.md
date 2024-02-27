@@ -82,7 +82,7 @@ unit_C = Unit.units["C"]
 root = unit_C.children.head
 
 # si se busca un nombre se puede iterar como termino el nombre o que el nodo sea None
-while root.data != "Carpeta1":
+while root.data.name != "Carpeta1":
     # obtenemos el siguiente nodo
     root = root.next
 
@@ -115,7 +115,7 @@ print(carpeta2.data.name)
 ```
 
 ### que falta por implementar
-- [ ] backup 
+- [x] backup 
 - [ ] rmdir (HL)
 - [ ] mkdir (HL)
 - [ ] type (HL)

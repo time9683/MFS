@@ -1,6 +1,5 @@
 from classes_functions import *
-import json,datetime
-    
+import json, datetime
 
 
 class Shell:
@@ -12,7 +11,7 @@ class Shell:
     * the shell not only executes the prompts, but validates the user's role."""
 
     def __init__(self):
-        self.currentUser: User|None = None
+        self.currentUser: User | None = None
         self.path: str = "C:/"
         self.backup_file = ""
         self.disables = []
@@ -180,13 +179,15 @@ class Shell:
         )
 
     def loop(self):
-            
         try:
             import readline
+
             readline.parse_and_bind("tab: complete")
             readline.set_completer(completation)
         except ImportError:
-            print("readline no esta dispobible en el sistema, no se podra usar el autocompletado")
+            print(
+                "readline no esta dispobible en el sistema, no se podra usar el autocompletado"
+            )
         # make complete with commands
         prompt = ""
         print(
@@ -572,7 +573,7 @@ class Shell:
             #  save the current state of the system
             self.backup()
 
-    def ls(self, args: (list|None) = None):
+    def ls(self, args: list | None = None):
         # if the args are none, list the current path
         if args == None:
             dir([self.path])
@@ -632,19 +633,23 @@ class Shell:
 
         for unit in Unit.units:
             # get the unit
-            unit_var = Unit.units[unit]
+            unit_var: Unit = Unit.units[unit]
             #  get the folders and files
             unit_child = unit_var.childrens.head
             root = list()
 
-            while unit_child != None:
+            while (
+                unit_child != None
+                and unit_child.data != None
+                and isinstance(unit_child, NodeL)
+            ):
                 #  get the files and folders
-                fil, fol = unit_child.data.to_list()
+                folders, files = unit_child.data.to_list()
                 # create the root folder
                 root_fol = {
                     "name": unit_child.data.name,
-                    "folders": fol,
-                    "files": fil,
+                    "folders": folders,
+                    "files": files,
                     "creationDate": unit_child.data.creationDate,
                     "modifyDate": unit_child.data.modifyDate,
                 }

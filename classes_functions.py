@@ -7,14 +7,14 @@ RED = "\033[91m"
 
 class Node:
     def __init__(self, data):
-        self.data = data
+        self.data: File | Folder = data
         self.right: Node | None = None
         self.left: Node | None = None
 
 
 class NodeL:
     def __init__(self, data):
-        self.data: None | File | Folder = data
+        self.data: Folder = data
         self.next: NodeL | None = None
 
 
@@ -64,25 +64,32 @@ class Tree:
         self.removeNode(root.left, name)
         self.removeNode(root.right, name)
 
-    def get_list(self):
+    def get_list(self) -> tuple[list, list]:
         root = self.root
-        lista = []
+        folders = []
+        files = []
         if root != None:
-            self.get_aux(root.left, lista)
-            lista.append(root.data)
-            self.get_aux(root.right, lista)
-        return lista
+            self.get_aux(root.left, folders, files)
+            if isinstance(root.data, Folder):
+                folders.append(root.data)
+            else:
+                files.append(root.data)
+            self.get_aux(root.right, folders, files)
+        return folders, files
 
-    def get_aux(self, root, lis):
+    def get_aux(self, root, folders, files):
         if root != None:
-            self.get_aux(root.left, lis)
-            lis.append(root.data)
-            self.get_aux(root.right, lis)
+            self.get_aux(root.left, folders, files)
+            if isinstance(root.data, Folder):
+                folders.append(root.data)
+            else:
+                files.append(root.data)
+            self.get_aux(root.right, folders, files)
 
     def search(self, data):
         return self.searchNode(self.root, data)
 
-    def searchNode(self, root, data):
+    def searchNode(self, root, data) -> Node | None:
         if root is None or root.data.name == data:
             return root
         result = None
@@ -206,11 +213,11 @@ class Folder:
     def remove(self, name):
         self.childrens.remove(name)
 
-    def to_list(self):
+    def to_list(self) -> tuple[list, list]:
         return self.childrens.get_list()
         ...
 
-    def search(self, name):
+    def search(self, name) -> Node | None:
         return self.childrens.search(name)
 
 
@@ -384,7 +391,8 @@ def dir(arg: list) -> None:
                 )
                 return
 
-            folders = current_folder.data.to_list()
+            folders, files = current_folder.data.to_list()
+            folders = folders + files
 
     else:
         Logs.append(Log("dir " + arg[0], "dir", "unidad no encontrada"))

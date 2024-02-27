@@ -346,20 +346,25 @@ class Shell:
     def cd(self, args: list):
         # Validate args
         if len(args) == 1:
-            path = args[0].lstrip("/").rstrip("/")
+            path = args[0]
             # Check for paths and change shell current path
-            # Check for absolute path
-            if ":" in path and self.valid_path(path):
-                self.path = path
-            # Check for relative path
-            elif path == "..":
-                if self.path != "C:/" and self.path != "C:":
+            if path == "..":
+                if self.path != "C:/":
                     self.path = "/".join(self.path.split("/")[:-1])
                 else:
                     print("ya estas en la raiz")
                     Logs.append(Log("cd " + args[0], "cd", "ya estas en la raiz"))
-            elif self.valid_path(join(self.path, path)):
-                self.path = join(self.path, path)
+            # Check valid path (both absolute and relative)
+            elif self.valid_path(path):
+                # Absolute path
+                if path[1] == ":":
+                    self.path = path
+                # Relative path
+                else:
+                    self.path = join(self.path, path)
+        else:
+            print("argumentos invalidos")
+            Logs.append(Log("cd " + args[0], "cd", "argumentos invalidos"))
 
     def mkdir(self, args: list):
         #  validate the arguments
@@ -603,22 +608,29 @@ class Shell:
         if path == "/":
             return True
         else:
+            # Get every folder name involved in path
             names = path.split("/")[1:]
+            if len(names) < 1:
+                print("path inválido")
+                Logs.append(
+                    Log(caller + " " + path, caller, "path inválido")
+                )
+                return False
+            
+            # Iterate over the names and check for its existence over the current tree
+            for i in range(len(names)):
+                if i == 0:
+                    current_folder = Unit.units[unidad].search(names[i])
+                else:
+                    current_folder = current_folder.search(names[i])
 
-            current_folder = Unit.units[unidad].childrens.head
-            Numbers_or_correct_folders = 0
-            for name in names:
-                while current_folder != None and current_folder.data.name != name:
-                    current_folder = current_folder.next
-
+                # Checking wether the folder was found or not
                 if current_folder == None:
                     break
 
-                if Numbers_or_correct_folders < len(names) - 1:
-                    current_folder = current_folder.data.childrens.head
-                    Numbers_or_correct_folders += 1
-
+            # Log error if path was not found, return True otherwise
             if current_folder == None:
+                print("directorio no encontrado")
                 Logs.append(
                     Log(caller + " " + path, caller, "directorio no encontrado")
                 )

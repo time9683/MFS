@@ -116,11 +116,10 @@ print(carpeta2.data.name)
 
 ### que falta por implementar
 - [ ] backup 
-- [ ] rmdir
-- [ ] mkdir
-- [ ] type
-- [ ] rmdir
-- [ ] valid_path
+- [ ] rmdir (HL)
+- [ ] mkdir (HL)
+- [ ] type (HL)
+- [ ] valid_path (HL)
 - [ ] validaciones de las clase Tree
 
 

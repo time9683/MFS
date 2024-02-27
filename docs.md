@@ -119,7 +119,7 @@ print(carpeta2.data.name)
 - [ ] rmdir (HL)
 - [ ] mkdir (HL)
 - [ ] type (HL)
-- [ ] valid_path (HL)
+- [X] valid_path (HL)
 - [ ] validaciones de las clase Tree
 
 

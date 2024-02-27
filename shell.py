@@ -238,10 +238,7 @@ class Shell:
 
                 # Command execution if it hasn't been invalidated
                 if len(prompt) > 1:
-                    try:
-                        command(prompt[1:])
-                    except TypeError:
-                        print("function doesn't take arguments")
+                    command(prompt[1:])
                 else:
                     # Check for login command to update current user
                     if command != Command.commands["login"]:
@@ -351,7 +348,8 @@ class Shell:
             # Check for paths and change shell current path
             if path == "..":
                 if self.path not in ["C:/", "D:/", "F:/"]:
-                    self.path = "/".join(self.path.split("/")[:-1])
+                    self.path = self.path.rstrip("/")
+                    self.path = "/".join(self.path.split("/")[:-1]) + "/"
                 else:
                     print("ya estas en la raiz")
                     Logs.append(Log("cd " + args[0], "cd", "ya estas en la raiz"))
@@ -360,9 +358,11 @@ class Shell:
                 # Absolute path
                 if path[1] == ":":
                     self.path = path
+                    if path[-1] != "/":
+                        self.path += "/"
                 # Relative path
                 else:
-                    self.path = join(self.path, path)
+                    self.path = join(self.path, path) + "/"
         else:
             print("argumentos invalidos")
             Logs.append(Log("cd " + args[0], "cd", "argumentos invalidos"))
@@ -622,9 +622,9 @@ class Shell:
             # Iterate over the names and check for its existence over the current tree
             for i in range(len(names)):
                 if i == 0:
-                    current_folder = Unit.units[unidad].search(names[i])
+                    current_folder = Unit.search(unidad, names[i])
                 else:
-                    current_folder = current_folder.search(names[i])
+                    current_folder = current_folder.data.search(names[i])
 
                 # Checking wether the folder was found or not
                 if current_folder == None:
@@ -641,7 +641,9 @@ class Shell:
                 return True
 
     def get_dir(self, path:str) -> Folder:
-        """Given a path, searches every node involved along the data tree
+        """Given a path, searches every node involved along the data tree.
+        This function is used after the path has been validated, so the dir
+        we're looking for actually exists.
 
         Args:
             path (str): Node name descriptor
@@ -653,7 +655,7 @@ class Shell:
         unidad, path = path.split(":")
         names = path.split("/")[1:]
 
-        current_folder = Unit.unidad[unidad].search(names[0])
+        current_folder = Unit.search(unidad, names[0])
 
         for i in range(1, len(names)):
             current_folder = current_folder.search(names[i])

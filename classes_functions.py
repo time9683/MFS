@@ -265,11 +265,21 @@ class Unit:
             current = current.next
         print("archivo no encontrado")
 
-    def search(self, unit, name):
+    @classmethod
+    def search(self, unit, name) -> NodeL:
         root = Unit.units[unit].childrens.head
 
+        # Iterate over list to find folder with given name
         while root.data.name != name:
-            root = root.next()
+            # Get next root as long as it exists
+            if root.next != None:
+                root = root.next
+            # Otherwise, None
+            else:
+                root = None
+                break
+
+        return root
 
 
 class Command:
@@ -380,7 +390,7 @@ def dir(arg: list) -> None:
                 folders.append(currentFolder.data)
                 currentFolder = currentFolder.next
         else:
-            names = path.split("/")[1:]
+            names = path.rstrip("/").split("/")[1:]
 
             current_folder = Unit.units[unidad].childrens.head
 

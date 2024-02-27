@@ -265,6 +265,12 @@ class Unit:
             current = current.next
         print("archivo no encontrado")
 
+    def search(self, unit, name):
+        root = Unit.units[unit].childrens.head
+
+        while root.data.name != name:
+            root = root.next()
+
 
 class Command:
     """Class that represents a command in the system, including methods to

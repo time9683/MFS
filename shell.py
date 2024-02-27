@@ -350,7 +350,7 @@ class Shell:
             path = args[0]
             # Check for paths and change shell current path
             if path == "..":
-                if self.path != "C:/":
+                if self.path not in ["C:/", "D:/", "F:/"]:
                     self.path = "/".join(self.path.split("/")[:-1])
                 else:
                     print("ya estas en la raiz")

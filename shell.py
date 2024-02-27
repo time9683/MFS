@@ -238,7 +238,10 @@ class Shell:
 
                 # Command execution if it hasn't been invalidated
                 if len(prompt) > 1:
-                    command(prompt[1:])
+                    try:
+                        command(prompt[1:])
+                    except TypeError:
+                        print("function doesn't take arguments")
                 else:
                     # Check for login command to update current user
                     if command != Command.commands["login"]:

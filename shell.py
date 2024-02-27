@@ -367,6 +367,7 @@ class Shell:
             print("argumentos invalidos")
             Logs.append(Log("cd " + args[0], "cd", "argumentos invalidos"))
 
+
     def mkdir(self, args: list):
         #  validate the arguments
         if len(args) == 1:
@@ -459,6 +460,7 @@ class Shell:
             print("argumentos invalidos")
             Logs.append(Log("rmdir " + " ".join(args), "rmdir", "argumentos invalidos"))
 
+
     def type(self, args: list):
         # validate the arguments
         if len(args) < 2:
@@ -474,7 +476,7 @@ class Shell:
             path = join(self.path, path)
 
         # get the name of the file
-        name = path.split("/")[-1]
+        name = path.rstrip("/").split("/")[-1]
 
         # validate if a name have a extension
         if not "." in name:
@@ -484,7 +486,7 @@ class Shell:
             )
             return
 
-        path = "/".join(path.split("/")[:-1])
+        path = "/".join(path.split("/")[:-1]) + "/"
         name, extension = name.split(".")
 
         # only txt files are allowed
@@ -501,7 +503,7 @@ class Shell:
                 return
 
             # if the path is the root ,dont create the file
-            if path == "C:/" or path == "C:":
+            if path == "C:/":
                 print("no se puede crear un archivo en la raiz")
                 Logs.append(
                     Log(
@@ -511,31 +513,16 @@ class Shell:
                     )
                 )
                 return
-                # date = datetime.datetime.now().strftime("%Y-%m-%d")
-                # Unit.units[path.split(":")[0]].append(File(name,len(text),date,date,"txt",text))
-                # return
 
-            #  get the first folder of unit
-            current_folder = Unit.units[path.split(":")[0]].childrens.head
-            # counter for the correct folders
-            corrects = 0
-            # max correct folders
-            corrects_len = len(path.split("/")[1:]) - 1
-
-            #  iterate over the folders to get the correct folder
-            for names in path.split("/")[1:]:
-                while current_folder.data.name != names:
-                    current_folder = current_folder.next
-                if corrects < corrects_len:
-                    current_folder = current_folder.data.childrens.head
-                    corrects += 1
-            #  create the file
+            #  get the dir
+            folder = self.get_dir(path)
             date = datetime.datetime.now().strftime("%Y-%m-%d")
-            fil = File(name, len(text), date, date, extension, text)
+            file = File(name, len(text), date, date, extension, text)
             # append the file to the folder
-            current_folder.data.append(fil)
+            folder.data.append(file)
             #  save the current state of the system
             self.backup()
+
 
     def ls(self, args: list | None = None):
         # if the args are none, list the current path
@@ -544,6 +531,7 @@ class Shell:
         else:
             # list the path given
             dir([self.path] + args)
+
 
     def valid_path(self, path: str) -> bool:
         # Get caller function
@@ -591,6 +579,7 @@ class Shell:
             # Log error if path was not found, return True otherwise
             return current_folder != None
 
+
     def get_dir(self, path:str) -> Folder | File:
         """Given a path, searches every node involved along the data tree.
         This function is used after the path has been validated, so the dir
@@ -612,6 +601,7 @@ class Shell:
             current_folder = current_folder.search(names[i])
 
         return current_folder
+
 
     def backup(self):
         # data object to save

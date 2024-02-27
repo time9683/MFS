@@ -373,7 +373,7 @@ class Shell:
             #  get the path
             path = args[0]
             #  validate if the path is absolute or relative
-            if not ":" in path:
+            if path[1] != ":":
                 #  join the relative path with the current path
                 path = join(self.path, path)
             #  get the name of the folder
@@ -590,7 +590,7 @@ class Shell:
         # Get caller function
         caller = inspect.stack()[1].function
 
-        # Add shell's path to path for validation
+        # Relative path: Add shell's path to path for validation
         if path == ".." and caller == "cd":
             return True
         elif path[1] != ":":
@@ -610,6 +610,7 @@ class Shell:
             return True
         else:
             # Get every folder name involved in path
+            # /F1/F2 -> [F1, F2]
             names = path.split("/")[1:]
             if len(names) < 1:
                 print("path inválido")
@@ -638,6 +639,26 @@ class Shell:
                 return False
             else:
                 return True
+
+    def get_dir(self, path:str) -> Folder:
+        """Given a path, searches every node involved along the data tree
+
+        Args:
+            path (str): Node name descriptor
+
+        Returns:
+            Folder: Search result
+        """
+        # Getting unit and names to search per directory
+        unidad, path = path.split(":")
+        names = path.split("/")[1:]
+
+        current_folder = Unit.unidad[unidad].search(names[0])
+
+        for i in range(1, len(names)):
+            current_folder = current_folder.search(names[i])
+
+        return current_folder
 
     def backup(self):
         # data object to save

@@ -238,10 +238,7 @@ class Shell:
 
                 # Command execution if it hasn't been invalidated
                 if len(prompt) > 1:
-                    try:
-                        command(prompt[1:])
-                    except TypeError:
-                        print("function doesn't take arguments")
+                    command(prompt[1:])
                 else:
                     # Check for login command to update current user
                     if command != Command.commands["login"]:
@@ -378,54 +375,38 @@ class Shell:
             #  validate if the path is absolute or relative
             if path[1] != ":":
                 #  join the relative path with the current path
-                path = join(self.path, path)
+                path = join(self.path, path.strip("/"))
+
             #  get the name of the folder
-            name = path.split("/")[-1]
+            names = path.split("/")
+            name = names[-1]
             #  get the path without the name
-            path = "/".join(path.split("/")[:-1]) + "/"
+            path = "/".join(names[:-1]) + "/"
 
             #  validate if the path is valid
-            if self.valid_path(path.rstrip("/")):
+            if self.valid_path(path):
                 # validate if file already exists
-                if self.valid_path(join(path, name)):
+                if self.valid_path(path + name):
                     print("el directorio ya existe")
                     Logs.append(
                         Log("mkdir " + args[0], "mkdir", "el directorio ya existe")
                     )
                     return
+                
+                # Create data for dir
+                date = datetime.datetime.now().strftime("%Y-%m-%d")
 
-                #  get the first folder of the unit
-                current_folder = Unit.units[path.split(":")[0]].childrens.head
-
-                #  validate if the path is the root
-                if path == "C:/" or path == "C:":
-                    # get a date
-                    date = datetime.datetime.now().strftime("%Y-%m-%d")
+                # Check if the path is the root
+                if path == "C:/":
                     #  append the folder to the unit
-                    Unit.units[path.split(":")[0]].append(Folder(name, date, date))
+                    Unit.units[path[0]].append(Folder(name, date, date))
                     #  save the current state of the system
                     self.backup()
                     return
-
-                #  counter for the correct folders
-                corrects = 0
-                #  max correct folders
-                corrects_len = len(path.split("/")[1:-1]) - 1
-
-                #  iterate over the folders to get the correct folder
-                for names in path.split("/")[1:-1]:
-                    while current_folder.data.name != names:
-                        current_folder = current_folder.next
-                    if corrects < corrects_len:
-                        current_folder = current_folder.data.childrens.head
-                        corrects += 1
-
-                #  create the folder
-                date = datetime.datetime.now().strftime("%Y-%m-%d")
-                fol = Folder(name, date, date)
-                current_folder.data.append(fol)
-                #  save the current state of the system
-                self.backup()
+                else:
+                    folder = self.get_dir(path)
+                    folder.append(Folder(name, date, date))
+                    self.backup()
             else:
                 print("path invalido")
                 Logs.append(Log("mkdir " + args[0], "mkdir", "path invalido"))
@@ -433,70 +414,45 @@ class Shell:
             print("argumentos invalidos")
             Logs.append(Log("mkdir " + args[0], "mkdir", "argumentos invalidos"))
 
+
     def rmdir(self, args: list):
         #  validate the arguments
         if len(args) == 1:
             #  get the path
             path = args[0]
             #  validate if the path is absolute or relative
-            if not ":" in path:
+            if path[1] != ":":
                 #  join the relative path with the current path
-                path = join(self.path, path)
+                path = join(self.path, path.strip("/"))
+
             #  get the name of the folder
-            name = path.split("/")[-1]
+            names = path.split("/")
+            name = names[-1]
             #  get the path without the name
-            path = "/".join(path.split("/")[:-1])
+            path = "/".join(names[:-1]) + "/"
 
             #  validate if a path is the root
-            if path == "C:/" or path == "C:":
+            if path == "C:/":
                 # get the unit
-                current_unit = Unit.units[path.split(":")[0]]
+                current_unit = Unit.units[path[0]]
                 #  remove the folder from the unit
                 current_unit.remove(name)
                 # save the current state of the system
                 self.backup()
                 return
 
-            #  validate if the path is valid
+            # validate path
             if self.valid_path(path):
-                #  get the first folder of the unit
-                current_folder = Unit.units[path.split(":")[0]].childrens.head
-                #  counter for the correct folders
-                corrects = 0
-                #  max correct folders
-                corrects_len = len(path.split("/")[1:-1]) - 1
+                current_folder = self.get_dir(path)
 
-                #  iterate over the folders to get the correct folder
-                for names in path.split("/")[1:]:
-                    while current_folder.data.name != names:
-                        current_folder = current_folder.next
-                    if corrects < corrects_len:
-                        current_folder = current_folder.data.childrens.head
-                        corrects += 1
-
-                # get the child of the folder
-                child = current_folder.data.childrens.head
-                while child != None and child.data.name != name:
-                    child = child.next
-                if child == None:
-                    print("directorio no encontrado o es un archivo")
-                    Logs.append(
-                        Log(
-                            "rmdir " + args[0],
-                            "rmdir",
-                            "directorio no encontrado o es un archivo",
-                        )
-                    )
-                    return
-
-                #  validate if the child is a folder
-                if not isinstance(child.data, Folder):
+                #  validate if the dir is actually a folder
+                if not isinstance(current_folder.data, Folder):
                     print("no es un directorio")
                     Logs.append(Log("rmdir " + args[0], "rmdir", "no es un directorio"))
                     return
 
                 # remove the folder from the folder
-                current_folder.data.remove(name)
+                current_folder.remove(name)
                 # save the current state of the system
                 self.backup()
         else:
@@ -597,7 +553,7 @@ class Shell:
         if path == ".." and caller == "cd":
             return True
         elif path[1] != ":":
-            path = self.path + path
+            path = self.path + path.strip("/")
 
         # Validate path
         # Separate unit and actual path
@@ -614,9 +570,8 @@ class Shell:
         else:
             # Get every folder name involved in path
             # /F1/F2 -> [F1, F2]
-            names = path.split("/")[1:]
+            names = path.rstrip("/").split("/")[1:]
             if len(names) < 1:
-                print("path inválido")
                 Logs.append(
                     Log(caller + " " + path, caller, "path inválido")
                 )
@@ -634,16 +589,9 @@ class Shell:
                     break
 
             # Log error if path was not found, return True otherwise
-            if current_folder == None:
-                print("directorio no encontrado")
-                Logs.append(
-                    Log(caller + " " + path, caller, "directorio no encontrado")
-                )
-                return False
-            else:
-                return True
+            return current_folder != None
 
-    def get_dir(self, path:str) -> Folder:
+    def get_dir(self, path:str) -> Folder | File:
         """Given a path, searches every node involved along the data tree.
         This function is used after the path has been validated, so the dir
         we're looking for actually exists.

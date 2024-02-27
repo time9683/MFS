@@ -9,3 +9,4 @@ def test_valid_path():
     assert shell.valid_path("C:/Folder1") == True
     assert shell.valid_path("C:Folder1") == False
     assert shell.valid_path("C:/F") == False
+    assert shell.valid_path("Folder1") == True

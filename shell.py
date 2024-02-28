@@ -238,10 +238,10 @@ class Shell:
 
                 # Command execution if it hasn't been invalidated
                 if len(prompt) > 1:
-                    # try:
+                    try:
                         command(prompt[1:])
-                    # except TypeError:
-                        # print("function doesn't take arguments")
+                    except TypeError:
+                        print("function doesn't take arguments")
                 else:
                     # Check for login command to update current user
                     if command != Command.commands["login"]:
@@ -370,7 +370,6 @@ class Shell:
             print("argumentos invalidos")
             Logs.append(Log("cd " + args[0], "cd", "argumentos invalidos"))
 
-
     def mkdir(self, args: list):
         #  validate the arguments
         if len(args) == 1:
@@ -396,7 +395,7 @@ class Shell:
                         Log("mkdir " + args[0], "mkdir", "el directorio ya existe")
                     )
                     return
-                
+
                 # Create data for dir
                 date = datetime.datetime.now().strftime("%Y-%m-%d")
 
@@ -409,7 +408,7 @@ class Shell:
                     return
                 else:
                     folder = self.get_dir(path)
-                    if folder!= None and isinstance(folder.data, Folder):
+                    if folder != None and isinstance(folder.data, Folder):
                         folder.data.append(Folder(name, date, date))
                     self.backup()
             else:
@@ -418,7 +417,6 @@ class Shell:
         else:
             print("argumentos invalidos")
             Logs.append(Log("mkdir " + args[0], "mkdir", "argumentos invalidos"))
-
 
     def rmdir(self, args: list):
         #  validate the arguments
@@ -452,9 +450,11 @@ class Shell:
 
                 if current_folder == None:
                     print("no se encontro el directorio")
-                    Logs.append(Log("rmdir " + args[0], "rmdir", "no se encontro el directorio"))
+                    Logs.append(
+                        Log("rmdir " + args[0], "rmdir", "no se encontro el directorio")
+                    )
                     return
-                
+
                 #  validate if the dir is actually a folder
                 if not isinstance(current_folder.data, Folder):
                     print("no es un directorio")
@@ -467,7 +467,6 @@ class Shell:
         else:
             print("argumentos invalidos")
             Logs.append(Log("rmdir " + " ".join(args), "rmdir", "argumentos invalidos"))
-
 
     def type(self, args: list):
         # validate the arguments
@@ -532,7 +531,6 @@ class Shell:
             #  save the current state of the system
             self.backup()
 
-
     def ls(self, args: list | None = None):
         # if the args are none, list the current path
         if args == None:
@@ -540,7 +538,6 @@ class Shell:
         else:
             # list the path given
             dir([self.path] + args)
-
 
     def valid_path(self, path: str) -> bool:
         # Get caller function
@@ -569,11 +566,9 @@ class Shell:
             # /F1/F2 -> [F1, F2]
             names = path.rstrip("/").split("/")[1:]
             if len(names) < 1:
-                Logs.append(
-                    Log(caller + " " + path, caller, "path inválido")
-                )
+                Logs.append(Log(caller + " " + path, caller, "path inválido"))
                 return False
-            
+
             # Iterate over the names and check for its existence over the current tree
             for i in range(len(names)):
                 if i == 0:
@@ -588,8 +583,7 @@ class Shell:
             # Log error if path was not found, return True otherwise
             return current_folder != None
 
-
-    def get_dir(self, path:str) -> Node | NodeL | None:
+    def get_dir(self, path: str) -> Node | NodeL | None:
         """Given a path, searches every node involved along the data tree.
         This function is used after the path has been validated, so the dir
         we're looking for actually exists.
@@ -607,14 +601,12 @@ class Shell:
         current_folder = Unit.search(unidad, names[0])
 
         for i in range(1, len(names)):
-            if current_folder != None and isinstance(current_folder.data,Folder):
+            if current_folder != None and isinstance(current_folder.data, Folder):
                 current_folder = current_folder.data.search(names[i])
 
         return current_folder
 
-
     def backup(self):
-        return
         # data object to save
         data = {"Units": [], "Users": []}
 

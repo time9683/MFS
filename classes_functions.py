@@ -44,25 +44,56 @@ class Tree:
                 self.appendsub(Element, parent.left)
 
     def remove(self, name):
-        self.root = self.removeNode(self.root, name)
+     self.root =     self.removeNode(self.root, name)
 
     def removeNode(self, root: Node | None, name):
-        if root != None and root.data.name == name:
-            self.root = None
-            return
-
         if root == None:
-            return
-
-        if root != None and root.left != None and name == root.left.data.name:
-            root.left = None
-            return
-        if root != None and root.right != None and name == root.right.data.name:
-            root.right = None
-            return
-
-        self.removeNode(root.left, name)
-        self.removeNode(root.right, name)
+           return None
+        if root.left == None and root.right == None:
+              if root.data.name == name:
+                return None
+              else:
+                return root
+            
+        key_node =None
+        temp = None
+        last = None
+        q = []
+        q.append(root)
+        while len(q):
+            temp = q.pop(0)
+            if temp.data.name == name:
+                key_node = temp
+            if temp.left:
+                last = temp
+                q.append(temp.left)
+            if temp.right:
+                last = temp
+                q.append(temp.right)
+        if key_node != None:
+            x = last.data if last else None
+            if last and last.left:
+                if last.left.data.name == name:
+                    last.left = None
+                else:
+                    last.right = None
+            else:
+                if last and last.right and last.right.data.name == name:
+                    last.right = None
+                else:
+                    if last != None:
+                        last.left = None
+            key_node.data = x
+        return root
+        
+        
+               
+      
+      
+      
+      
+      
+      
 
     def get_list(self) -> tuple[list, list]:
         root = self.root
@@ -266,7 +297,7 @@ class Unit:
         print("archivo no encontrado")
 
     @classmethod
-    def search(self, unit, name) -> NodeL:
+    def search(cls, unit, name) -> NodeL | None:
         root = Unit.units[unit].childrens.head
 
         # Iterate over list to find folder with given name

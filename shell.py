@@ -238,10 +238,10 @@ class Shell:
 
                 # Command execution if it hasn't been invalidated
                 if len(prompt) > 1:
-                    try:
+                    # try:
                         command(prompt[1:])
-                    except TypeError:
-                        print("function doesn't take arguments")
+                    # except TypeError:
+                        # print("function doesn't take arguments")
                 else:
                     # Check for login command to update current user
                     if command != Command.commands["login"]:
@@ -409,7 +409,8 @@ class Shell:
                     return
                 else:
                     folder = self.get_dir(path)
-                    folder.append(Folder(name, date, date))
+                    if folder!= None and isinstance(folder.data, Folder):
+                        folder.data.append(Folder(name, date, date))
                     self.backup()
             else:
                 print("path invalido")
@@ -449,14 +450,18 @@ class Shell:
             if self.valid_path(path):
                 current_folder = self.get_dir(path)
 
+                if current_folder == None:
+                    print("no se encontro el directorio")
+                    Logs.append(Log("rmdir " + args[0], "rmdir", "no se encontro el directorio"))
+                    return
+                
                 #  validate if the dir is actually a folder
                 if not isinstance(current_folder.data, Folder):
                     print("no es un directorio")
                     Logs.append(Log("rmdir " + args[0], "rmdir", "no es un directorio"))
                     return
-
                 # remove the folder from the folder
-                current_folder.remove(name)
+                current_folder.data.remove(name)
                 # save the current state of the system
                 self.backup()
         else:
@@ -522,7 +527,8 @@ class Shell:
             date = datetime.datetime.now().strftime("%Y-%m-%d")
             file = File(name, len(text), date, date, extension, text)
             # append the file to the folder
-            folder.data.append(file)
+            if folder != None and isinstance(folder.data, Folder):
+                folder.data.append(file)
             #  save the current state of the system
             self.backup()
 
@@ -583,7 +589,7 @@ class Shell:
             return current_folder != None
 
 
-    def get_dir(self, path:str) -> Folder | File:
+    def get_dir(self, path:str) -> Node | NodeL | None:
         """Given a path, searches every node involved along the data tree.
         This function is used after the path has been validated, so the dir
         we're looking for actually exists.
@@ -596,17 +602,19 @@ class Shell:
         """
         # Getting unit and names to search per directory
         unidad, path = path.split(":")
-        names = path.split("/")[1:]
+        names = path.rstrip("/").split("/")[1:]
 
         current_folder = Unit.search(unidad, names[0])
 
         for i in range(1, len(names)):
-            current_folder = current_folder.search(names[i])
+            if current_folder != None and isinstance(current_folder.data,Folder):
+                current_folder = current_folder.data.search(names[i])
 
         return current_folder
 
 
     def backup(self):
+        return
         # data object to save
         data = {"Units": [], "Users": []}
 

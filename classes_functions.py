@@ -44,18 +44,18 @@ class Tree:
                 self.appendsub(Element, parent.left)
 
     def remove(self, name):
-     self.root =     self.removeNode(self.root, name)
+        self.root = self.removeNode(self.root, name)
 
     def removeNode(self, root: Node | None, name):
         if root == None:
-           return None
+            return None
         if root.left == None and root.right == None:
-              if root.data.name == name:
+            if root.data.name == name:
                 return None
-              else:
+            else:
                 return root
-            
-        key_node =None
+
+        key_node = None
         temp = None
         last = None
         q = []
@@ -85,37 +85,73 @@ class Tree:
                         last.left = None
             key_node.data = x
         return root
-        
-        
-               
-      
-      
-      
-      
-      
-      
 
     def get_list(self) -> tuple[list, list]:
         root = self.root
         folders = []
         files = []
         if root != None:
-            self.get_aux(root.left, folders, files)
             if isinstance(root.data, Folder):
-                folders.append(root.data)
+                sub_folders, sub_files = root.data.to_list()
+                folders.append(
+                    {
+                        "name": root.data.name,
+                        "size": root.data.size,
+                        "creationDate": root.data.creationDate,
+                        "modifyDate": root.data.modifyDate,
+                        "folders": sub_folders,
+                        "files": sub_files,
+                    }
+                )
             else:
-                files.append(root.data)
-            self.get_aux(root.right, folders, files)
+                files.append(
+                    {
+                        "name": root.data.name,
+                        "size": root.data.size,
+                        "creationDate": root.data.creationDate,
+                        "modifyDate": root.data.modifyDate,
+                        "extension": root.data.extension,
+                        "content": root.data.content,
+                    }
+                )
+            if root.left != None:
+                self.get_aux(root.left, folders, files)
+            if root.right != None:
+                self.get_aux(root.right, folders, files)
+
         return folders, files
 
-    def get_aux(self, root, folders, files):
+    def get_aux(self, root: Node, folders, files):
         if root != None:
-            self.get_aux(root.left, folders, files)
             if isinstance(root.data, Folder):
-                folders.append(root.data)
+                sub_folders, sub_files = root.data.to_list()
+                folders.append(
+                    {
+                        "name": root.data.name,
+                        "size": root.data.size,
+                        "creationDate": root.data.creationDate,
+                        "modifyDate": root.data.modifyDate,
+                        "folders": sub_folders,
+                        "files": sub_files,
+                    }
+                )
             else:
-                files.append(root.data)
-            self.get_aux(root.right, folders, files)
+                files.append(
+                    {
+                        "name": root.data.name,
+                        "size": root.data.size,
+                        "creationDate": root.data.creationDate,
+                        "modifyDate": root.data.modifyDate,
+                        "extension": root.data.extension,
+                        "content": root.data.content,
+                    }
+                )
+            if root.left != None:
+                self.get_aux(root.left, folders, files)
+            if root.right != None:
+                self.get_aux(root.right, folders, files)
+
+        return folders, files
 
     def search(self, data):
         return self.searchNode(self.root, data)
@@ -705,7 +741,6 @@ def print_childrens(childrens: list, advanced: bool = False) -> None:
     text = ""
     if advanced:
         text += "Nombre  Creacion  Modificacion  Tamaño\n"
-
     for child in childrens:
         if isinstance(child, Folder):
             if advanced:
@@ -724,23 +759,41 @@ def print_childrens(childrens: list, advanced: bool = False) -> None:
                 )
             else:
                 text += OKBLUE + child.name + "/" + "\n"
-        else:
+
+        if not isinstance(child, Folder) and not "extension" in child:
             if advanced:
                 text += (
-                    DEFAULT
-                    + child.name
-                    + "."
-                    + child.extension
+                    OKBLUE
+                    + child["name"]
+                    + "/"
+                    + DEFAULT
                     + " "
-                    + child.creationDate
+                    + child["creationDate"]
                     + " "
-                    + child.modifyDate
+                    + child["modifyDate"]
                     + " "
-                    + str(child.size)
+                    + str(child["size"])
                     + "\n"
                 )
             else:
-                text += DEFAULT + child.name + "." + child.extension + "\n"
+                text += OKBLUE + child["name"] + "/" + "\n"
+        elif not isinstance(child, Folder) and "extension" in child:
+            if advanced:
+                text += (
+                    DEFAULT
+                    + child["name"]
+                    + "."
+                    + child["extension"]
+                    + " "
+                    + child["creationDate"]
+                    + " "
+                    + child["modifyDate"]
+                    + " "
+                    + str(child["size"])
+                    + "\n"
+                )
+            else:
+                text += DEFAULT + child["name"] + "." + child["extension"] + "\n"
     Logs.append(Log("dir unidad:/path", "dir", text))
     print(text + DEFAULT, end="")
 
